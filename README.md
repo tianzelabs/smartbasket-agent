@@ -1,144 +1,96 @@
-# 🛒 SmartBasket Agent
+# SmartBasket Agent
 
-AI-alapú bevásárlókosár-összehasonlító alkalmazás magyarországi üzletláncok számára.
+Egy CLI eszköz, ami megválaszolja azt a kérdést, amit mindenki felteszi bevásárlás előtt: hol olcsóbb ez a termék? A válaszhoz nem kell külön megnyitni a Tesco, a Lidl, az Aldi és a többi üzletlánc appját - elég megkérdezni magyarul, a rendszer a hivatalos GVH Árfigyelő napi adatai alapján válaszol.
 
-A SmartBasket Agent a **GVH Árfigyelő** hivatalos napi termékadatait használja, és természetes nyelvű kérdésekre válaszol SQL-lekérdezések segítségével.
+## Miért csináltuk
 
-A rendszer minden lekérdezés előtt automatikusan ellenőrzi, hogy a helyi adatbázis tartalmazza-e az aktuális napi adatokat. Szükség esetén letölti a legfrissebb adatállományt, frissíti az SQLite adatbázist, majd ezután válaszolja meg a felhasználó kérdését.
+Az árösszehasonlítás ma azt jelenti, hogy valaki sorban végignyitja 4-5 üzletlánc appját, és fejben vagy jegyzetben tartja számon, hol mennyibe kerül ugyanaz a termék. Ez percekbe kerül minden egyes alkalommal, és a legtöbben egyszerűen nem csinálják meg - inkább ott vásárolnak, ahová amúgy is mennek.
 
----
+A SmartBasket ezt a keresést egyetlen kérdéssé egyszerűsíti: `"Hol a legolcsóbb a Dove testápoló?"`, és a válasz másodperceken belül megjön, valós, aznapi hivatalos árak alapján. Egy 5 fős iroda esetére számolt konkrét megtakarítást a [`docs/roi.md`](docs/roi.md) tartalmazza.
 
-# Fő funkciók
+## Mit csinál valójában
 
-- 🤖 AI Agent természetes nyelvű kérdésekhez
-- 🛒 Bevásárlókosár összehasonlítás
-- 🔍 Text-to-SQL lekérdezések
-- 📦 Hivatalos GVH Árfigyelő adatok
-- 📅 Automatikus napi adatfrissítés
-- 🗃️ SQLite adatbázis
-- 💻 CLI alkalmazás
-- 📜 JSONL naplózás
-
----
-
-# Példák
+A CLI egy AI agentnek adja tovább a kérdést, ami magyarul, természetes nyelven kapja meg a felhasználó kérdését, SQL-lé fordítja, lefuttatja a helyi SQLite adatbázison, és a kapott sorokból ad emberi választ. Az adatbázis minden kérdés előtt automatikusan frissül a GVH Árfigyelő aznapi Excel-exportjából, tehát a felhasználónak sosem kell külön "frissítést" indítania - egyszerűen csak kérdez.
 
 ```bash
-smartbasket ask "Hol a legolcsóbb a Dove testápoló?"
-
-smartbasket ask "Hasonlítsd össze a Tesco és a Lidl árait."
-
-smartbasket ask "Melyik üzletláncban a legolcsóbb a csirkemell?"
-
-smartbasket ask "Milyen kategóriák érhetők el?"
+pnpm smartbasket ask "Hol a legolcsóbb a Dove testápoló?"
 ```
 
----
-
-# Architektúra
-
 ```
-Felhasználó
-      │
-      ▼
-CLI
-      │
-      ▼
-Adatfrissítés ellenőrzése
-      │
-      ▼
-SQLite adatbázis
-      │
-      ▼
-AI Agent
-      │
-      ▼
-runSql Tool
-      │
-      ▼
-Természetes nyelvű válasz
+Több „Dove testápoló" terméket találtam a katalógusban - kiszerelésben és
+típusban is eltérnek. A legolcsóbb: Dove Glow & Shine testápoló (250 ml) -
+Rossmann, 499 Ft. Ha egy konkrét változatra gondoltál, szólj, és pontosítom!
 ```
 
----
+A rendszer szándékosan **nem talál ki adatot**: ha nincs a kérdésre releváns termék az adatbázisban, ezt egyértelműen közli, ahelyett hogy hallucinálna egy árat.
 
-# Technológiai stack
+## A technológiai stack és miért ezt választottuk
 
-| Komponens         | Technológia    |
-| ----------------- | -------------- |
-| Nyelv             | TypeScript     |
-| Runtime           | Node.js        |
-| Monorepo          | Nx             |
-| Adatbázis         | SQLite         |
-| SQLite Driver     | better-sqlite3 |
-| AI                | Anthropic SDK  |
-| CLI               | Commander      |
-| Validáció         | Zod            |
-| Excel feldolgozás | xlsx           |
-| Tesztelés         | Vitest         |
+| Mire kell       | Mit használunk                           | Miért                                                                                                                    |
+| --------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Nyelv, monorepo | TypeScript, Nx (pnpm workspace)          | egy repóban él a CLI és az üzleti logika, közös típusokkal, gyors cache-elt build/teszt                                  |
+| Adatbázis       | SQLite (`better-sqlite3`)                | egyfelhasználós, helyi CLI-nek nem kell Postgres/Docker - egy fájl, nulla üzemeltetés                                    |
+| AI              | `@anthropic-ai/sdk`, saját tool-use loop | kézzel írt agent-loop az SDK fölött (nem a beépített `toolRunner`), hogy a mechanika végig látható és tanulható maradjon |
+| CLI             | Commander                                | egyszerű, jól ismert parancssori keretrendszer                                                                           |
+| Validáció       | Zod                                      | a rendszerhatárokon (env változók, Excel-sorok, tool-inputok) mindent explicit módon ellenőrzünk, `unknown`-ból indulva  |
+| Excel-import    | `xlsx`                                   | a GVH Árfigyelő napi adatai csak Excelben érhetők el                                                                     |
+| Tesztelés       | Vitest                                   | gyors, natív TypeScript/ESM támogatás                                                                                    |
 
----
-
-# Adatforrás
-
-A projekt a GVH Árfigyelő hivatalos napi termékadatait használja.
-
-A rendszer a nyers adatokat SQLite adatbázisba importálja, és az AI Agent kizárólag ezt a helyi adatbázist kérdezi le.
-
----
-
-# Projekt struktúra
+## Hogyan függ össze
 
 ```
-smartbasket-agent/
-
-├── apps/
-│   └── cli/
-├── packages/
-│   └── core/
-├── docs/
-├── data/
-├── logs/
-└── README.md
+kérdés → adatfrissítés ellenőrzése → AI agent → runSql/listCategories tool → SQLite → válasz
 ```
 
----
+Az agent két saját toollal dolgozik:
 
-# Fejlesztés
+- **`runSql`** - csak `SELECT`/`WITH` lekérdezést enged, egy statementet egyszerre, és egy külön, ténylegesen read-only SQLite-kapcsolaton fut. Ez a projekt legkényesebb pontja (a felhasználói kérdésből generált SQL), ezért két független védelmi réteg van rajta: a guard és maga a kapcsolat jogosultsága.
+- **`listCategories`** - kilistázza az elérhető termékkategóriákat, ha az agent nem biztos egy kategória pontos nevében.
 
-Függőségek telepítése:
+Az agent sosem éri el közvetlenül a nyers adattáblát, csak szemantikus SQL view-kat (`vw_products`, `vw_categories`, `vw_best_prices`) - ez egyszerűbb, stabilabb sémát ad neki, és csökkenti a hallucináció esélyét.
+
+## Indulás
 
 ```bash
 pnpm install
+cp .env.example .env
+# írd be az ANTHROPIC_API_KEY-t a .env-be
 ```
 
-Alkalmazás indítása:
+Ennyi. Az adatbázis séma és a napi GVH-adat automatikusan létrejön az első `ask` vagy `refresh` híváskor - nincs külön migrációs vagy seed-lépés.
 
 ```bash
-pnpm smartbasket ask
+pnpm smartbasket ask "Hol a legolcsóbb a Dove testápoló?"
+pnpm smartbasket ask "Hasonlítsd össze a Tesco és a Lidl árait."
+pnpm smartbasket ask "Milyen kategóriák érhetők el?"
+
+pnpm smartbasket ask                                    # interaktív mód, "exit"-ig
+pnpm smartbasket ask "..." --show-prompt                # a teljes system promptot és a tool-hívásokat is kiírja
+pnpm smartbasket refresh                                # adatbázis frissítése kézzel (ask is megteszi ezt automatikusan)
 ```
 
-Tesztek futtatása:
+Minden `ask`-hoz JSONL napló készül a `logs/` mappába: a kérdés, a generált SQL, a tool-hívások, a válasz és a token-felhasználás.
+
+## Fejlesztőknek
 
 ```bash
-pnpm test
+pnpm exec nx run-many -t build,lint,typecheck,test   # teljes ellenőrzés
+pnpm exec nx test core                               # csak a packages/core tesztjei
 ```
 
----
+A kódbázis két Nx projektre oszlik: `apps/cli` csak I/O-t végez (parancsok, kimenet), minden üzleti logika a `packages/core`-ban él, alkategóriákra bontva (`agent`, `tools`, `prompts`, `database`, `importer`, `parser`, `freshness`, `config`, `logging`).
 
-# Jövőbeli fejlesztések
+A fejlesztés fázisolt terve, minden fázishoz tartozó commit- és PR-lánccal: [`docs/proposal-implementacio.md`](docs/proposal-implementacio.md). A többi dokumentum:
 
-- bevásárlókosár-optimalizálás
-- útvonal- és utazási költség számítás
-- történeti árak elemzése
-- webes felület
-- REST API
-- MCP Server
-- több adatforrás támogatása
+- [`docs/brs-smartbasket.md`](docs/brs-smartbasket.md), [`docs/architektura.md`](docs/architektura.md), [`docs/konvenciok.md`](docs/konvenciok.md), [`docs/stack.md`](docs/stack.md) - eredeti specifikáció
+- [`docs/system-prompt.md`](docs/system-prompt.md) / [`docs/system-prompt-improvements.md`](docs/system-prompt-improvements.md) - az agent system promptja és a rajta végzett, indokolt javítások
+- [`docs/roi.md`](docs/roi.md) - mennyit spórol ez egy 5 fős irodának, számokkal
+- [`docs/plugins.md`](docs/plugins.md) - a projekthez telepített Claude Code plugin-ök és hogy miért pont ezek
 
----
+## Mi nincs benne (még)
 
-# Oktatási cél
+Bevásárlókosár-szintű optimalizálás, útvonaltervezés, történeti ártrendek, webes felület, REST API, MCP szerver, több adatforrás - ezek tudatosan nem részei az első verziónak, de az architektúra nem zárja ki őket.
 
-A projekt az **AI Ágensfejlesztés az Alapoktól** kurzus beadandó feladataként készül.
+## Háttér
 
-A cél egy valós üzleti problémát megoldó AI agent megvalósítása, amely természetes nyelvű kérdéseket SQL-lekérdezésekké alakít, és hivatalos adatok alapján ad megbízható válaszokat.
+A projekt az _AI Ágensfejlesztés az Alapoktól_ kurzus beadandó feladataként készült: egy valós problémát megoldó AI agent, ami természetes nyelvű kérdéseket SQL-lekérdezésekké alakít, és kizárólag hivatalos, ellenőrzött adatok alapján válaszol.
