@@ -16,3 +16,7 @@ export * from './lib/importer/write-product-snapshot.js';
 export * from './lib/freshness/check-dataset-freshness.js';
 export * from './lib/freshness/ensure-fresh-dataset.js';
 export * from './lib/freshness/local-date.js';
+export * from './lib/tools/run-sql/db-readonly.js';
+export * from './lib/tools/run-sql/run-sql-tool.js';
+export * from './lib/tools/run-sql/sql-guard.js';
+export * from './lib/tools/list-categories/list-categories-tool.js';

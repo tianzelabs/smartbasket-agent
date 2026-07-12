@@ -14,14 +14,22 @@ const program = new Command();
 const logFilePath = createLogFilePath();
 
 async function handleAsk(question: string, showPrompt: boolean): Promise<void> {
+  const dbPath = resolveDatabasePath();
   try {
-    const result = await askAgent(question);
+    // BRS 5. pont: minden kérdés előtt ellenőrizzük/frissítjük az adatot -
+    // ezt nem az LLM dönti el, alkalmazáslogika.
+    runMigrations(dbPath);
+    await ensureFreshDataset({ dbPath, sourceUrl: resolveSourceUrl() });
+
+    const result = await askAgent(question, { dbPath });
 
     if (showPrompt) {
       console.log('--- system prompt ---');
       console.log(result.systemPrompt);
       console.log('--- üzenetek ---');
       console.log(JSON.stringify(result.messages, null, 2));
+      console.log('--- tool hívások ---');
+      console.log(JSON.stringify(result.toolCalls, null, 2));
       console.log('--- válasz ---');
     }
     console.log(result.answer);
@@ -33,6 +41,7 @@ async function handleAsk(question: string, showPrompt: boolean): Promise<void> {
       answer: result.answer,
       model: result.model,
       usage: result.usage,
+      toolCalls: result.toolCalls,
       durationMs: result.durationMs,
     });
   } catch (error) {
