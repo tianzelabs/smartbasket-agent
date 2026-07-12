@@ -103,7 +103,14 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@24.13.3)(@vitest/coverage-v8@4.1.10)(vite@8.1.4(@types/node@24.13.3)(esbuild@0.27.7)(tsx@4.23.0)(yaml@2.9.0))
 
-  apps/cli: {}
+  apps/cli:
+    dependencies:
+      '@smartbasket/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      commander:
+        specifier: ^15.0.0
+        version: 15.0.0
 
   packages/core:
     dependencies:
