@@ -114,6 +114,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.111.0
+        version: 0.111.0(zod@4.4.3)
       better-sqlite3:
         specifier: ^12.11.1
         version: 12.11.1
