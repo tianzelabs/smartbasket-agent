@@ -1,1 +1,22 @@
 .DS_Store
+
+# dependencies
+node_modules/
+
+# build output
+dist/
+.nx/cache/
+.nx/workspace-data/
+
+# env
+.env
+.env.local
+
+# runtime data (downloaded daily, not versioned)
+data/*.db
+data/*.db-journal
+data/*.xlsx
+logs/*.jsonl
+
+# claude code local (personal permissions, not shared)
+.claude/settings.local.json
