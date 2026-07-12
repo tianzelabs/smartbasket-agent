@@ -12,14 +12,23 @@ A SmartBasket ezt a keresést egyetlen kérdéssé egyszerűsíti: `"Hol a legol
 
 A CLI egy AI agentnek adja tovább a kérdést, ami magyarul, természetes nyelven kapja meg a felhasználó kérdését, SQL-lé fordítja, lefuttatja a helyi SQLite adatbázison, és a kapott sorokból ad emberi választ. Az adatbázis minden kérdés előtt automatikusan frissül a GVH Árfigyelő aznapi Excel-exportjából, tehát a felhasználónak sosem kell külön "frissítést" indítania - egyszerűen csak kérdez.
 
+Nem csak egyetlen termékre kérdezhetünk rá - az agent egy egész kosarat is összeállít, kategóriánként a legolcsóbb tétellel:
+
 ```bash
-pnpm smartbasket ask "Hol a legolcsóbb a Dove testápoló?"
+pnpm smartbasket ask "rakj össze egy egyszemélyes vacsorát"
 ```
 
 ```
-Több „Dove testápoló" terméket találtam a katalógusban - kiszerelésben és
-típusban is eltérnek. A legolcsóbb: Dove Glow & Shine testápoló (250 ml) -
-Rossmann, 499 Ft. Ha egy konkrét változatra gondoltál, szólj, és pontosítom!
+## Egyszemélyes vacsora – paradicsomos-sajtos tészta zöldpaprikával
+
+| Tétel | Termék | Bolt | Ár |
+|---|---|---|---|
+| Tészta | Orsótészta 500g | Aldi/Lidl/Tesco/Penny | 325 Ft |
+| Paradicsom | Paradicsom 1kg | Lidl | 395 Ft |
+| Zöldpaprika | Hazai TV paprika 3db | Lidl | 239 Ft |
+| Sajt | Ammerländer trappista | Aldi | 335 Ft |
+
+Összesen kb. 1294 Ft. Szólj, ha mást is bepakolnék (pl. húst, italt)!
 ```
 
 A rendszer szándékosan **nem talál ki adatot**: ha nincs a kérdésre releváns termék az adatbázisban, ezt egyértelműen közli, ahelyett hogy hallucinálna egy árat.
@@ -89,7 +98,7 @@ A fejlesztés fázisolt terve, minden fázishoz tartozó commit- és PR-lánccal
 
 ## Mi nincs benne (még)
 
-Bevásárlókosár-szintű optimalizálás, útvonaltervezés, történeti ártrendek, webes felület, REST API, MCP szerver, több adatforrás - ezek tudatosan nem részei az első verziónak, de az architektúra nem zárja ki őket.
+Egy adott kosár ad-hoc összeállítása és beárazása (lásd fent) már most is megy - amit nem tud: mentett/visszatérő kosarak, több üzletlánc közötti útvonal- és utazási költség szerinti optimalizálás, történeti ártrendek, webes felület, REST API, MCP szerver, több adatforrás. Ezek tudatosan nem részei az első verziónak, de az architektúra nem zárja ki őket.
 
 ## Háttér
 
