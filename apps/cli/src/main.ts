@@ -1,4 +1,6 @@
+import { createInterface } from 'node:readline/promises';
 import {
+  echo,
   ensureFreshDataset,
   resolveDatabasePath,
   resolveSourceUrl,
@@ -7,6 +9,22 @@ import {
 import { Command } from 'commander';
 
 const program = new Command();
+
+// rl.question() ismételt hívása pipe-olt (nem TTY) stdin-en elakad: a 'line'
+// esemény azonnal tüzel, amint a puffer kész, függetlenül attól, hogy éppen
+// figyelünk-e rá - ezért async iterátorral olvassuk a sorokat.
+async function runInteractiveEcho(): Promise<void> {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  rl.prompt();
+  for await (const line of rl) {
+    if (line.trim() === 'exit') {
+      break;
+    }
+    console.log(echo(line));
+    rl.prompt();
+  }
+  rl.close();
+}
 
 program
   .name('smartbasket')
@@ -17,11 +35,12 @@ program
   .command('ask')
   .argument('[kérdés]', 'a feltenni kívánt természetes nyelvű kérdés')
   .description('Kérdés feltevése a SmartBasket agentnek')
-  .action((question: string | undefined) => {
-    console.log('Az "ask" parancs még nincs implementálva.');
+  .action(async (question: string | undefined) => {
     if (question) {
-      console.log(`Kérdés: ${question}`);
+      console.log(echo(question));
+      return;
     }
+    await runInteractiveEcho();
   });
 
 program
