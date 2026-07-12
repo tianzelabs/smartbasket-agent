@@ -12,9 +12,9 @@
     "typecheck": "nx run-many -t typecheck",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "smartbasket": "tsx --conditions=@smartbasket/source apps/cli/src/main.ts",
-    "db:migrate": "tsx --conditions=@smartbasket/source scripts/migrate.ts",
-    "db:refresh": "tsx --conditions=@smartbasket/source scripts/refresh.ts"
+    "smartbasket": "tsx --env-file-if-exists=.env --conditions=@smartbasket/source apps/cli/src/main.ts",
+    "db:migrate": "tsx --env-file-if-exists=.env --conditions=@smartbasket/source scripts/migrate.ts",
+    "db:refresh": "tsx --env-file-if-exists=.env --conditions=@smartbasket/source scripts/refresh.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
