@@ -5,6 +5,8 @@ node_modules/
 
 # build output
 dist/
+out-tsc/
+/tmp/
 .nx/cache/
 .nx/workspace-data/
 
@@ -20,3 +22,5 @@ logs/*.jsonl
 
 # claude code local (personal permissions, not shared)
 .claude/settings.local.json
+
+vitest.config.*.timestamp*
