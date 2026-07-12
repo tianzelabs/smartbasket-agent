@@ -32,15 +32,24 @@ describe('appendAgentLog', () => {
       answer: 'Szia! Miben segíthetek?',
       model: 'claude-sonnet-5',
       usage: { input_tokens: 10, output_tokens: 5 },
+      toolCalls: [],
       durationMs: 42,
     });
     appendAgentLog(filePath, {
       timestamp: '2026-07-12T20:00:05.000Z',
       question: 'hol a legolcsóbb a tej?',
       systemPrompt: '<role>...</role>',
-      answer: 'Jelenleg nem érem el az adatbázist.',
+      answer: 'A Lidl-ben a legolcsóbb.',
       model: 'claude-sonnet-5',
       usage: { input_tokens: 12, output_tokens: 8 },
+      toolCalls: [
+        {
+          name: 'runSql',
+          input: { query: 'SELECT * FROM vw_best_prices' },
+          result: {},
+          isError: false,
+        },
+      ],
       durationMs: 55,
     });
 
