@@ -27,4 +27,7 @@ logs/*.jsonl
 # claude code local (personal permissions, not shared)
 .claude/settings.local.json
 
+# editor-specific (not everyone uses VS Code)
+.vscode/
+
 vitest.config.*.timestamp*
