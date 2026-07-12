@@ -97,5 +97,8 @@
       }
     }
   },
-  "dependencies": {}
+  "dependencies": {
+    "@smartbasket/core": "workspace:*",
+    "commander": "^15.0.0"
+  }
 }
