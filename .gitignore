@@ -17,6 +17,8 @@ out-tsc/
 # runtime data (downloaded daily, not versioned)
 data/*.db
 data/*.db-journal
+data/*.db-shm
+data/*.db-wal
 data/*.xlsx
 logs/*.jsonl
 

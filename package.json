@@ -11,10 +11,12 @@
     "typecheck": "nx run-many -t typecheck",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "smartbasket": "tsx --conditions=@smartbasket/source apps/cli/src/main.ts"
+    "smartbasket": "tsx --conditions=@smartbasket/source apps/cli/src/main.ts",
+    "db:migrate": "tsx --conditions=@smartbasket/source scripts/migrate.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
+    "@smartbasket/core": "workspace:*",
     "better-sqlite3": "^12.11.1",
     "commander": "^15.0.0",
     "xlsx": "^0.18.5",
