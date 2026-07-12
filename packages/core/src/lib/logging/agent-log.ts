@@ -8,6 +8,7 @@ export interface AgentLogEntry {
   answer: string;
   model: string;
   usage: unknown;
+  toolCalls: unknown[];
   durationMs: number;
 }
 
