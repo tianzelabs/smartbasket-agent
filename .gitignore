@@ -6,6 +6,8 @@ node_modules/
 # build output
 dist/
 out-tsc/
+coverage/
+*.tsbuildinfo
 /tmp/
 .nx/cache/
 .nx/workspace-data/
@@ -24,5 +26,8 @@ logs/*.jsonl
 
 # claude code local (personal permissions, not shared)
 .claude/settings.local.json
+
+# editor-specific (not everyone uses VS Code)
+.vscode/
 
 vitest.config.*.timestamp*
