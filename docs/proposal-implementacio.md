@@ -127,16 +127,16 @@
 
 ## Fázis-összefoglaló (mérföldkövek és commitok)
 
-| #   | Fázis                        | Eredmény                                     | Commit (típus) |
-| --- | ----------------------------- | --------------------------------------------- | -------------- |
-| A1  | Nx + tooling                  | workspace, lint/teszt fut                     | `chore`        |
-| A2  | core + cli váz                | buildelhető skeletonok                        | `chore`        |
-| A3  | SQLite séma + migráció        | `products`/`import_metadata` + view-k         | `feat`         |
-| A4  | Importer + freshness          | valós GVH-adat az adatbázisban                | `feat`         |
-| A5  | Üres CLI                      | `smartbasket --help` fut                      | `feat`         |
-| B1  | CLI echo                      | visszhang single-shot + interaktív            | `feat`         |
-| B2  | LLM, DB nélkül                | válaszol; adat-kérdésnél őszinte "nincs DB"   | `feat`         |
-| B3  | runSql + listCategories       | NL → SQL → NL válasz, read-only, saját tool   | `feat`         |
-| C   | ROI, system prompt, README    | beadási dokumentumok készen                   | `docs`         |
+| #   | Fázis                      | Eredmény                                    | Commit (típus) |
+| --- | -------------------------- | ------------------------------------------- | -------------- |
+| A1  | Nx + tooling               | workspace, lint/teszt fut                   | `chore`        |
+| A2  | core + cli váz             | buildelhető skeletonok                      | `chore`        |
+| A3  | SQLite séma + migráció     | `products`/`import_metadata` + view-k       | `feat`         |
+| A4  | Importer + freshness       | valós GVH-adat az adatbázisban              | `feat`         |
+| A5  | Üres CLI                   | `smartbasket --help` fut                    | `feat`         |
+| B1  | CLI echo                   | visszhang single-shot + interaktív          | `feat`         |
+| B2  | LLM, DB nélkül             | válaszol; adat-kérdésnél őszinte "nincs DB" | `feat`         |
+| B3  | runSql + listCategories    | NL → SQL → NL válasz, read-only, saját tool | `feat`         |
+| C   | ROI, system prompt, README | beadási dokumentumok készen                 | `docs`         |
 
 Minden sor végén: **te tesztelsz → ha zöld, commitolunk.**

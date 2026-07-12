@@ -63,18 +63,18 @@ Természetes nyelvű válasz
 
 # Technológiai stack
 
-| Komponens | Technológia |
-|------------|-------------|
-| Nyelv | TypeScript |
-| Runtime | Node.js |
-| Monorepo | Nx |
-| Adatbázis | SQLite |
-| SQLite Driver | better-sqlite3 |
-| AI | Anthropic SDK |
-| CLI | Commander |
-| Validáció | Zod |
-| Excel feldolgozás | xlsx |
-| Tesztelés | Vitest |
+| Komponens         | Technológia    |
+| ----------------- | -------------- |
+| Nyelv             | TypeScript     |
+| Runtime           | Node.js        |
+| Monorepo          | Nx             |
+| Adatbázis         | SQLite         |
+| SQLite Driver     | better-sqlite3 |
+| AI                | Anthropic SDK  |
+| CLI               | Commander      |
+| Validáció         | Zod            |
+| Excel feldolgozás | xlsx           |
+| Tesztelés         | Vitest         |
 
 ---
 

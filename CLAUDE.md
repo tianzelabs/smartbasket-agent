@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-This repository is currently **documentation-only** — no `package.json`, no source code, no tests exist yet. Everything below is the *specified* architecture from `docs/` that must be followed once implementation begins. Do not assume any file, module, or command mentioned here already exists; check first.
+Implementation is in progress, following `docs/proposal-implementacio.md` (phased plan: A = environment setup, B = 3 layered implementation phases, C = submission deliverables). Check that doc for what phase is currently done before assuming a module exists.
 
-Read `docs/brs-smartbasket.md`, `docs/architektura.md`, `docs/konvenciok.md`, and `docs/stack.md` before starting implementation work — they are the authoritative spec and are treated as binding by this project (see "Claude Code convention" below).
+Read `docs/brs-smartbasket.md`, `docs/architektura.md`, `docs/konvenciok.md`, and `docs/stack.md` before implementation work — they are the authoritative spec (see "Claude Code convention" in `docs/konvenciok.md`). Note two deliberate deviations from `docs/stack.md`, decided during planning: no Prisma/ORM (raw SQL migrations + `better-sqlite3`, per the project's own "SQL-first, no ORM" rule), and no manual seed data (the `products` table is only ever populated by the real GVH importer, never a fixture).
 
 ## What this project is
 
@@ -84,3 +84,27 @@ Data source: GVH Árfigyelő official daily XLSX feed (URL in `docs/brs-smartbas
 ## Out of scope for v1 (docs/brs-smartbasket.md)
 
 Online ordering, payments, user accounts, coupons, inventory management, historical price charts, OCR, web UI, mobile app, REST API, MCP server, multi-source data, route/cart optimization. These are documented future directions, not current work — don't build toward them speculatively.
+
+<!-- nx configuration start-->
+<!-- Leave the start & end comments to automatically receive updates. -->
+
+# General Guidelines for working with Nx
+
+- For navigating/exploring the workspace, invoke the `nx-workspace` skill first - it has patterns for querying projects, targets, and dependencies
+- When running tasks (for example build, lint, test, e2e, etc.), always prefer running the task through `nx` (i.e. `nx run`, `nx run-many`, `nx affected`) instead of using the underlying tooling directly
+- Prefix nx commands with the workspace's package manager (e.g., `pnpm nx build`, `npm exec nx test`) - avoids using globally installed CLI
+- You have access to the Nx MCP server and its tools, use them to help the user
+- For Nx plugin best practices, check `node_modules/@nx/<plugin>/PLUGIN.md`. Not all plugins have this file - proceed without it if unavailable.
+- NEVER guess CLI flags - always check nx_docs or `--help` first when unsure
+
+## Scaffolding & Generators
+
+- For scaffolding tasks (creating apps, libs, project structure, setup), ALWAYS invoke the `nx-generate` skill FIRST before exploring or calling MCP tools
+
+## When to use nx_docs
+
+- USE for: advanced config options, unfamiliar flags, migration guides, plugin configuration, edge cases
+- DON'T USE for: basic generator syntax (`nx g @nx/react:app`), standard commands, things you already know
+- The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
+
+<!-- nx configuration end-->

@@ -26,21 +26,21 @@ A technológiai stack kiválasztásánál az alábbi szempontokat vettük figyel
 
 # 3. Technológiai stack
 
-| Komponens | Technológia |
-|------------|-------------|
-| Nyelv | TypeScript |
-| Runtime | Node.js LTS |
-| Package manager | pnpm |
-| Monorepo | Nx |
-| CLI | Commander |
-| AI SDK | Anthropic SDK |
-| Validáció | Zod |
-| Adatbázis | SQLite |
-| SQLite Driver | better-sqlite3 |
-| Excel import | xlsx |
-| Teszt | Vitest |
-| Formázás | Prettier |
-| Linter | ESLint |
+| Komponens       | Technológia    |
+| --------------- | -------------- |
+| Nyelv           | TypeScript     |
+| Runtime         | Node.js LTS    |
+| Package manager | pnpm           |
+| Monorepo        | Nx             |
+| CLI             | Commander      |
+| AI SDK          | Anthropic SDK  |
+| Validáció       | Zod            |
+| Adatbázis       | SQLite         |
+| SQLite Driver   | better-sqlite3 |
+| Excel import    | xlsx           |
+| Teszt           | Vitest         |
+| Formázás        | Prettier       |
+| Linter          | ESLint         |
 
 ---
 
@@ -135,23 +135,23 @@ nem az LLM dönti el.
 
 A napi Árfigyelő snapshot tárolása.
 
-| Oszlop | Típus |
-|---------|-------|
-| product_identifier | TEXT |
-| product_name | TEXT |
-| category_identifier | INTEGER |
-| category_name | TEXT |
-| retailer_name | TEXT |
-| unit | TEXT |
-| package_size | REAL |
-| minimum_price | REAL |
-| maximum_price | REAL |
-| minimum_unit_price | REAL |
-| maximum_unit_price | REAL |
-| retailer_count | INTEGER |
-| available_store_count | INTEGER |
-| retailer_total_store_count | INTEGER |
-| imported_at | DATETIME |
+| Oszlop                     | Típus    |
+| -------------------------- | -------- |
+| product_identifier         | TEXT     |
+| product_name               | TEXT     |
+| category_identifier        | INTEGER  |
+| category_name              | TEXT     |
+| retailer_name              | TEXT     |
+| unit                       | TEXT     |
+| package_size               | REAL     |
+| minimum_price              | REAL     |
+| maximum_price              | REAL     |
+| minimum_unit_price         | REAL     |
+| maximum_unit_price         | REAL     |
+| retailer_count             | INTEGER  |
+| available_store_count      | INTEGER  |
+| retailer_total_store_count | INTEGER  |
+| imported_at                | DATETIME |
 
 Composite index:
 
@@ -169,15 +169,15 @@ Index:
 
 A napi import állapotának nyilvántartása.
 
-| Oszlop | Típus |
-|---------|-------|
-| import_date | DATE |
-| source_url | TEXT |
+| Oszlop        | Típus    |
+| ------------- | -------- |
+| import_date   | DATE     |
+| source_url    | TEXT     |
 | downloaded_at | DATETIME |
-| imported_at | DATETIME |
-| imported_rows | INTEGER |
-| checksum | TEXT |
-| status | TEXT |
+| imported_at   | DATETIME |
+| imported_rows | INTEGER  |
+| checksum      | TEXT     |
+| status        | TEXT     |
 
 ---
 
