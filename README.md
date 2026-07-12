@@ -10,7 +10,7 @@ A SmartBasket ezt a keresést egyetlen kérdéssé egyszerűsíti: `"Hol a legol
 
 ## Mit csinál valójában
 
-A CLI egy AI agentnek adja tovább a kérdést, ami magyarul, természetes nyelven kapja meg a felhasználó kérdését, SQL-lé fordítja, lefuttatja a helyi SQLite adatbázison, és a kapott sorokból ad emberi választ. Az adatbázis minden kérdés előtt automatikusan frissül a GVH Árfigyelő aznapi Excel-exportjából, tehát a felhasználónak sosem kell külön "frissítést" indítania - egyszerűen csak kérdez.
+A CLI egy AI agentnek adja tovább a kérdést, ami magyarul, természetes nyelven kapja meg a felhasználó kérdését, SQL-lé fordítja, lefuttatja a helyi SQLite adatbázison, és a kapott sorokból ad emberi választ. Minden kérdés előtt a rendszer megnézi, hogy van-e már a mai napra sikeresen importált adat - ha igen, nem történik semmi extra, ha nem, letölti és beimportálja a GVH Árfigyelő aznapi Excel-exportját. A felhasználónak emiatt sosem kell külön "frissítést" indítania - egyszerűen csak kérdez, a rendszer eldönti, kell-e frissíteni.
 
 Három valós példa, ugyanabból a katalógusból, aznapi árakkal:
 
