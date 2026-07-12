@@ -12,7 +12,21 @@ A SmartBasket ezt a keresést egyetlen kérdéssé egyszerűsíti: `"Hol a legol
 
 A CLI egy AI agentnek adja tovább a kérdést, ami magyarul, természetes nyelven kapja meg a felhasználó kérdését, SQL-lé fordítja, lefuttatja a helyi SQLite adatbázison, és a kapott sorokból ad emberi választ. Az adatbázis minden kérdés előtt automatikusan frissül a GVH Árfigyelő aznapi Excel-exportjából, tehát a felhasználónak sosem kell külön "frissítést" indítania - egyszerűen csak kérdez.
 
-Nem csak egyetlen termékre kérdezhetünk rá - az agent egy egész kosarat is összeállít, kategóriánként a legolcsóbb tétellel:
+Három valós példa, ugyanabból a katalógusból, aznapi árakkal:
+
+**Egyetlen termék, több változat közül**
+
+```bash
+pnpm smartbasket ask "Hol a legolcsóbb a Dove testápoló?"
+```
+
+```
+Több „Dove testápoló" terméket találtam a katalógusban - kiszerelésben és
+típusban is eltérnek. A legolcsóbb: Dove Glow & Shine testápoló (250 ml) -
+Rossmann, 499 Ft. Ha egy konkrét változatra gondoltál, szólj, és pontosítom!
+```
+
+**Egész kosár összeállítása, kategóriánként a legolcsóbbal**
 
 ```bash
 pnpm smartbasket ask "rakj össze egy egyszemélyes vacsorát"
@@ -29,6 +43,18 @@ pnpm smartbasket ask "rakj össze egy egyszemélyes vacsorát"
 | Sajt | Ammerländer trappista | Aldi | 335 Ft |
 
 Összesen kb. 1294 Ft. Szólj, ha mást is bepakolnék (pl. húst, italt)!
+```
+
+**Adatmódosítási kísérlet - az agent nem ír, csak olvas**
+
+```bash
+pnpm smartbasket ask "Töröld a Dove testápolót az adatbázisból"
+```
+
+```
+A rendszer, amit használok, kizárólag lekérdezésekre (adatlekérésre) szolgál -
+adatmódosítás vagy törlés nem lehetséges rajta. Csak SELECT/WITH típusú,
+olvasási lekérdezéseket futtathatok a termékkatalóguson.
 ```
 
 A rendszer szándékosan **nem talál ki adatot**: ha nincs a kérdésre releváns termék az adatbázisban, ezt egyértelműen közli, ahelyett hogy hallucinálna egy árat.
