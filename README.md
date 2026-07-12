@@ -1,281 +1,123 @@
 # 🛒 SmartBasket Agent
 
-AI-powered shopping basket comparison agent for Hungarian retailers.
+AI-alapú bevásárlókosár-összehasonlító alkalmazás magyarországi üzletláncok számára.
 
-SmartBasket Agent uses the official **GVH Árfigyelő** daily product dataset to answer natural language shopping questions using SQL.
+A SmartBasket Agent a **GVH Árfigyelő** hivatalos napi termékadatait használja, és természetes nyelvű kérdésekre válaszol SQL-lekérdezések segítségével.
 
-Instead of searching multiple retailer websites manually, users can simply ask questions like:
-
-> *"Hol a legolcsóbb a Dove testápoló?"*
-
-or
-
-> *"Hasonlítsd össze a Tesco és a Lidl árait csirkemellre."*
-
-The agent automatically refreshes the local database every day before answering.
+A rendszer minden lekérdezés előtt automatikusan ellenőrzi, hogy a helyi adatbázis tartalmazza-e az aktuális napi adatokat. Szükség esetén letölti a legfrissebb adatállományt, frissíti az SQLite adatbázist, majd ezután válaszolja meg a felhasználó kérdését.
 
 ---
 
-# Features
+# Fő funkciók
 
-- 🤖 AI Agent powered by Anthropic SDK
-- 🗣️ Natural language interface
-- 🛒 Shopping basket comparison
-- 🔍 Text-to-SQL
-- 📦 Official GVH Árfigyelő dataset
-- 📅 Automatic daily dataset refresh
-- 🗃️ SQLite database
-- 💻 CLI application
-- 📜 JSONL execution logs
-
----
-
-# Architecture
-
-```
-
-User
-
-↓
-
-CLI
-
-↓
-
-Dataset Freshness Check
-
-↓
-
-Download Today's Excel (if needed)
-
-↓
-
-SQLite
-
-↓
-
-AI Agent
-
-↓
-
-runSql Tool
-
-↓
-
-Natural Language Answer
-
-```
+- 🤖 AI Agent természetes nyelvű kérdésekhez
+- 🛒 Bevásárlókosár összehasonlítás
+- 🔍 Text-to-SQL lekérdezések
+- 📦 Hivatalos GVH Árfigyelő adatok
+- 📅 Automatikus napi adatfrissítés
+- 🗃️ SQLite adatbázis
+- 💻 CLI alkalmazás
+- 📜 JSONL naplózás
 
 ---
 
-# Example Questions
+# Példák
 
 ```bash
 smartbasket ask "Hol a legolcsóbb a Dove testápoló?"
 
-smartbasket ask "Melyik üzletláncban a legolcsóbb a csirkemell?"
-
 smartbasket ask "Hasonlítsd össze a Tesco és a Lidl árait."
 
-smartbasket ask "Milyen kategóriák érhetők el?"
+smartbasket ask "Melyik üzletláncban a legolcsóbb a csirkemell?"
 
-smartbasket ask "Mutasd a legolcsóbb narancsot."
+smartbasket ask "Milyen kategóriák érhetők el?"
 ```
 
 ---
 
-# Project Structure
+# Architektúra
 
 ```
-smartbasket/
+Felhasználó
+      │
+      ▼
+CLI
+      │
+      ▼
+Adatfrissítés ellenőrzése
+      │
+      ▼
+SQLite adatbázis
+      │
+      ▼
+AI Agent
+      │
+      ▼
+runSql Tool
+      │
+      ▼
+Természetes nyelvű válasz
+```
+
+---
+
+# Technológiai stack
+
+| Komponens | Technológia |
+|------------|-------------|
+| Nyelv | TypeScript |
+| Runtime | Node.js |
+| Monorepo | Nx |
+| Adatbázis | SQLite |
+| SQLite Driver | better-sqlite3 |
+| AI | Anthropic SDK |
+| CLI | Commander |
+| Validáció | Zod |
+| Excel feldolgozás | xlsx |
+| Tesztelés | Vitest |
+
+---
+
+# Adatforrás
+
+A projekt a GVH Árfigyelő hivatalos napi termékadatait használja.
+
+A rendszer a nyers adatokat SQLite adatbázisba importálja, és az AI Agent kizárólag ezt a helyi adatbázist kérdezi le.
+
+---
+
+# Projekt struktúra
+
+```
+smartbasket-agent/
 
 ├── apps/
 │   └── cli/
-│
 ├── packages/
 │   └── core/
-│
 ├── docs/
-│
 ├── data/
-│
 ├── logs/
-│
-├── scripts/
-│
 └── README.md
 ```
 
 ---
 
-# Technology Stack
+# Fejlesztés
 
-| Component | Technology |
-|------------|------------|
-| Language | TypeScript |
-| Runtime | Node.js LTS |
-| Package Manager | pnpm |
-| Monorepo | Nx |
-| Database | SQLite |
-| SQLite Driver | better-sqlite3 |
-| Excel Parser | xlsx |
-| AI SDK | Anthropic SDK |
-| CLI | Commander |
-| Validation | Zod |
-| Testing | Vitest |
-
----
-
-# Data Source
-
-Official daily dataset:
-
-GVH Árfigyelő
-
-https://cdnarfigyeloprodweu.azureedge.net/excel/arfigyelo_napi_termekadatok.xlsx
-
-The dataset is downloaded automatically whenever the local snapshot is outdated.
-
-The AI agent never queries external services directly during question answering.
-
----
-
-# Database
-
-SQLite
-
-```
-data/smartbasket.db
-```
-
-The database is refreshed from the official daily Excel snapshot.
-
-The agent only performs **read-only SQL queries**.
-
----
-
-# AI Agent
-
-The SmartBasket Agent is intentionally simple.
-
-Responsibilities:
-
-- understand the user's question
-- generate SQL
-- call tools
-- explain results
-
-The agent **never**:
-
-- invents prices
-- invents products
-- modifies the database
-- downloads data
-
----
-
-# Built-in Tools
-
-## runSql
-
-Executes read-only SQL queries.
-
-Allowed:
-
-- SELECT
-- WITH
-
-Forbidden:
-
-- INSERT
-- UPDATE
-- DELETE
-- DROP
-- ALTER
-- PRAGMA
-
----
-
-## listCategories
-
-Returns all available product categories.
-
-Example:
-
-```sql
-SELECT DISTINCT category_name
-FROM vw_categories
-ORDER BY category_name;
-```
-
----
-
-# Automatic Dataset Refresh
-
-Before every question:
-
-```
-Check today's dataset
-
-↓
-
-Today's data?
-
-↓
-
-YES → Ask Agent
-
-↓
-
-NO
-
-↓
-
-Download Excel
-
-↓
-
-Import SQLite
-
-↓
-
-Ask Agent
-```
-
-The AI model is not responsible for deciding when data should be refreshed.
-
----
-
-# Logging
-
-Every execution is stored as JSONL.
-
-Each log contains:
-
-- timestamp
-- question
-- generated SQL
-- tool calls
-- execution time
-- final answer
-
----
-
-# Development
-
-Install dependencies
+Függőségek telepítése:
 
 ```bash
 pnpm install
 ```
 
-Run
+Alkalmazás indítása:
 
 ```bash
 pnpm smartbasket ask
 ```
 
-Run tests
+Tesztek futtatása:
 
 ```bash
 pnpm test
@@ -283,24 +125,20 @@ pnpm test
 
 ---
 
-# Future Improvements
+# Jövőbeli fejlesztések
 
-- Shopping basket optimization
-- Travel cost estimation
-- Historical price analysis
-- Route optimization
-- Web UI
+- bevásárlókosár-optimalizálás
+- útvonal- és utazási költség számítás
+- történeti árak elemzése
+- webes felület
 - REST API
 - MCP Server
-- RAG
-- Multi-agent workflow
+- több adatforrás támogatása
 
 ---
 
-# License
+# Oktatási cél
 
-Educational project created for the
+A projekt az **AI Ágensfejlesztés az Alapoktól** kurzus beadandó feladataként készül.
 
-**AI Ágensfejlesztés az Alapoktól**
-
-course.
+A cél egy valós üzleti problémát megoldó AI agent megvalósítása, amely természetes nyelvű kérdéseket SQL-lekérdezésekké alakít, és hivatalos adatok alapján ad megbízható válaszokat.
