@@ -1,0 +1,27 @@
+# SmartBasket Agent — lokális Postgres (OrbStack vagy Docker Desktop futtatja).
+# Két jog: a smartbasket (RW) viszi a sémát/migrációt/napi importot, a
+# smartbasket_ro (RO) az agent runSql/listCategories toolját szolgálja ki
+# (docs/db-migration-rationale.md). A RO szerepkört az initdb script hozza létre.
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: smartbasket-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: smartbasket
+      POSTGRES_PASSWORD: smartbasket
+      POSTGRES_DB: smartbasket
+    ports:
+      - '5432:5432'
+    volumes:
+      - smartbasket-pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U smartbasket -d smartbasket']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  smartbasket-pgdata:

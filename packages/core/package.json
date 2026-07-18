@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
-    "better-sqlite3": "^12.11.1",
+    "pg": "^8.16.3",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5",
     "zod": "^4.4.3"

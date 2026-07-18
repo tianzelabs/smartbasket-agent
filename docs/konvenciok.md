@@ -162,13 +162,18 @@ a raw_products táblát.
 
 ---
 
-# 7. SQLite konvenciók
+# 7. Postgres konvenciók
 
-Minden adat SQLite-ban található.
+Minden adat Postgres-ben található (lokálisan, docker-compose-zal futtatva -
+korábban SQLite volt, lásd docs/db-migration-rationale.md).
+
+Két szerepkör, két kapcsolat:
+
+- smartbasket (RW) - migráció, napi import.
+- smartbasket_ro (RO) - agent runSql/listCategories/checkDatasetFreshness,
+  DB-szerver szinten csak SELECT jog, csak a vw_ view-kre.
 
 Nem használunk:
-
-PostgreSQL
 
 MySQL
 

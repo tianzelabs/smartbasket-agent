@@ -5,7 +5,7 @@ import { downloadDailyExcel } from './download-daily-excel.js';
 import { writeProductSnapshot } from './write-product-snapshot.js';
 
 export interface ImportDailyDatasetOptions {
-  dbPath: string;
+  databaseUrl: string;
   sourceUrl: string;
 }
 
@@ -25,16 +25,16 @@ export async function importDailyDataset(
   const checksum = createHash('sha256').update(buffer).digest('hex');
   const { importDate, rows } = parseGvhExcelBuffer(buffer);
 
-  const db = openReadWriteConnection(options.dbPath);
+  const db = await openReadWriteConnection(options.databaseUrl);
   try {
-    writeProductSnapshot(db, rows, {
+    await writeProductSnapshot(db, rows, {
       importDate,
       sourceUrl: options.sourceUrl,
       downloadedAt,
       checksum,
     });
   } finally {
-    db.close();
+    await db.end();
   }
 
   return { importDate, importedRows: rows.length, checksum };

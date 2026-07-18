@@ -1,13 +1,14 @@
 import { createServer, type Server } from 'node:http';
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { utils, write } from 'xlsx';
 import { openReadWriteConnection } from '../database/connection.js';
 import { runMigrations } from '../database/migrate.js';
-import { todayIsoDate } from './local-date.js';
+import {
+  createTestDatabase,
+  type TestDatabase,
+} from '../database/test-database.js';
 import { ensureFreshDataset } from './ensure-fresh-dataset.js';
+import { todayIsoDate } from './local-date.js';
 
 const HEADER = [
   'Termék azonosító',
@@ -55,8 +56,7 @@ describe('ensureFreshDataset', () => {
   let server: Server;
   let requestCount: number;
   let sourceUrl: string;
-  let dir: string;
-  let dbPath: string;
+  let testDb: TestDatabase;
 
   beforeEach(async () => {
     requestCount = 0;
@@ -76,41 +76,49 @@ describe('ensureFreshDataset', () => {
     }
     sourceUrl = `http://127.0.0.1:${address.port}/daily.xlsx`;
 
-    dir = mkdtempSync(join(tmpdir(), 'smartbasket-ensure-fresh-'));
-    dbPath = join(dir, 'test.db');
-    runMigrations(dbPath);
+    testDb = await createTestDatabase();
+    await runMigrations(testDb.databaseUrl);
   });
 
   afterEach(async () => {
     await new Promise<void>((resolvePromise) =>
       server.close(() => resolvePromise()),
     );
-    rmSync(dir, { recursive: true, force: true });
+    await testDb.drop();
   });
 
   it('imports when there is no data for today yet', async () => {
-    await ensureFreshDataset({ dbPath, sourceUrl });
+    await ensureFreshDataset({
+      databaseUrl: testDb.databaseUrl,
+      databaseUrlReadonly: testDb.databaseUrlReadonly,
+      sourceUrl,
+    });
 
     expect(requestCount).toBe(1);
-    const db = openReadWriteConnection(dbPath);
+    const db = await openReadWriteConnection(testDb.databaseUrl);
     const productCount = (
-      db.prepare('SELECT COUNT(*) AS count FROM products').get() as {
-        count: number;
-      }
-    ).count;
-    db.close();
+      await db.query<{ count: number }>(
+        'SELECT COUNT(*) AS count FROM products',
+      )
+    ).rows[0].count;
+    await db.end();
     expect(productCount).toBe(1);
   });
 
   it('does not re-download when a successful import for today already exists', async () => {
-    const db = openReadWriteConnection(dbPath);
-    db.prepare(
+    const db = await openReadWriteConnection(testDb.databaseUrl);
+    await db.query(
       `INSERT INTO import_metadata (import_date, source_url, downloaded_at, imported_at, imported_rows, checksum, status)
-       VALUES (@importDate, 'https://example.test', '2026-07-12T05:00:00Z', '2026-07-12T05:01:00Z', 100, 'abc', 'success')`,
-    ).run({ importDate: todayIsoDate() });
-    db.close();
+       VALUES ($1, 'https://example.test', '2026-07-12T05:00:00Z', '2026-07-12T05:01:00Z', 100, 'abc', 'success')`,
+      [todayIsoDate()],
+    );
+    await db.end();
 
-    await ensureFreshDataset({ dbPath, sourceUrl });
+    await ensureFreshDataset({
+      databaseUrl: testDb.databaseUrl,
+      databaseUrlReadonly: testDb.databaseUrlReadonly,
+      sourceUrl,
+    });
 
     expect(requestCount).toBe(0);
   });

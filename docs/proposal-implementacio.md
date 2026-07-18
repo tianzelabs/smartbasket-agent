@@ -1,5 +1,12 @@
 # SmartBasket Agent — implementációs terv (proposal)
 
+> **Utólagos kiegészítés:** ez a doksi az A/B/C fázisok tervét és a tényleges
+> build-történetét írja le úgy, ahogy akkor (SQLite-tal) készült - szándékosan
+> nem íródott át. A projekt azóta, tanári visszajelzésre válaszul, Postgresre
+> állt át (két DB-szerepkör, RW/RO) - ld. `docs/db-migration-rationale.md`.
+> Ahol a szöveg SQLite-ot vagy `better-sqlite3`-at említ, az a build-időpontra
+> vonatkozik, nem a jelenlegi állapotra.
+
 > Forrás: `brs-smartbasket.md`, `architektura.md`, `stack.md`, `konvenciok.md`.
 > A terv két nagy részből áll: **A) a környezet létrehozása** (mérföldkő: kész, futó, valós adattal feltöltött, tesztelhető projekt) és **B) az implementáció 3 fázisa** (echo → LLM DB nélkül → SQL-es agent). Ezt egy **C) beadási követelmények** blokk zárja (saját tool, ROI, system prompt, README).
 > Minden fázis kicsi, önállóan tesztelhető increment. A fázis végén **te tesztelsz**, utána egy **commit** zárja (Conventional Commits, `dev` branch).
@@ -23,7 +30,7 @@
 1. **Modell:** alapból egy aktuális Claude modell (`claude-sonnet-5`), `.env`-ből felülírhatóan (`ANTHROPIC_MODEL`); költségérzékeny futtatáshoz `claude-haiku-4-5` is beállítható.
 2. **Adatforrás:** nincs manuális/fixture seed; a `checkDatasetFreshness`/`refreshDataset` pipeline tölti be a valós adatot a live GVH URL-ről, determinisztikus alkalmazáslogikaként (nem LLM-döntés).
 3. **System prompt:** a kurzus nem adott át fájlt ehhez a repóhoz — én írok egy első („kapott") verziót a BRS alapján, majd egy tudatosan javított v2-t, írásos indoklással (`docs/system-prompt.md` + `docs/system-prompt-improvements.md`).
-4. **Adatbázis-réteg:** SQLite + `better-sqlite3`, Prisma nélkül (a projekt eredeti döntése — nincs Docker, nincs ORM az agent SQL-je előtt).
+4. **Adatbázis-réteg:** eredetileg SQLite + `better-sqlite3` volt (nincs Docker, nincs ORM az agent SQL-je előtt); a projekt azóta Postgresre állt át, `pg`-vel, továbbra is ORM nélkül — lásd `docs/db-migration-rationale.md`.
 5. **Plugin-ök:** `context7`, `semgrep`, `commit-commands` — telepítve projekt-scope-ban, indoklás: `docs/plugins.md`-ben (C fázis).
 6. **API kulcs:** a felhasználó helyben állítja be `.env`-ben (`ANTHROPIC_API_KEY`), amikor a B2 fázis teszteléséhez elérünk.
 

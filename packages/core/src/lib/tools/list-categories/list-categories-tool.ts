@@ -1,5 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk';
-import { openReadOnlyConnection } from '../run-sql/db-readonly.js';
+import { runReadOnlyQuery } from '../run-sql/db-readonly.js';
 
 export interface ListCategoriesResult {
   categories: string[];
@@ -12,16 +12,16 @@ interface CategoryRow {
 // A projekt kötelező, saját toolja (BRS FR-06): SELECT DISTINCT
 // category_name a vw_categories view-n keresztül. Az agent akkor hívja, ha
 // bizonytalan egy kategória pontos nevében.
-export function listCategories(dbPath: string): ListCategoriesResult {
-  const db = openReadOnlyConnection(dbPath);
-  try {
-    const rows = db
-      .prepare('SELECT category FROM vw_categories')
-      .all() as CategoryRow[];
-    return { categories: rows.map((row) => row.category) };
-  } finally {
-    db.close();
-  }
+export async function listCategories(
+  databaseUrlReadonly?: string,
+): Promise<ListCategoriesResult> {
+  const { rows } = await runReadOnlyQuery(
+    'SELECT category FROM vw_categories',
+    databaseUrlReadonly,
+  );
+  return {
+    categories: (rows as unknown as CategoryRow[]).map((row) => row.category),
+  };
 }
 
 export const LIST_CATEGORIES_TOOL_DEFINITION: Anthropic.Tool = {

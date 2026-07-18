@@ -35,8 +35,8 @@ A technológiai stack kiválasztásánál az alábbi szempontokat vettük figyel
 | CLI             | Commander      |
 | AI SDK          | Anthropic SDK  |
 | Validáció       | Zod            |
-| Adatbázis       | SQLite         |
-| SQLite Driver   | better-sqlite3 |
+| Adatbázis       | Postgres (docker-compose) |
+| Postgres Driver | pg             |
 | Excel import    | xlsx           |
 | Teszt           | Vitest         |
 | Formázás        | Prettier       |
@@ -44,29 +44,28 @@ A technológiai stack kiválasztásánál az alábbi szempontokat vettük figyel
 
 ---
 
-# 4. Miért SQLite?
+# 4. Adatbázis: Postgres (korábban SQLite volt)
 
 A kurzus példája PostgreSQL-t használ.
 
-A SmartBasket Agent azonban:
+A projekt egy ideig SQLite-ot használt helyette - egyfelhasználós, lokális,
+konkurens írás nélküli CLI-hez ez védhető döntés volt (nem kell Docker,
+egyetlen fájl az adatbázis). Ezt a tanári visszajelzés vetette fel: SQLite-on
+nincs Postgres-szerű szerepkör-alapú (role-based) hozzáférés-vezérlés, így a
+`runSql` read-only kapcsolata és a SQL-guard ugyanabban a Node-folyamatban
+futott - nem volt tőle teljesen független, DB-szerver szintű védelem.
 
-- lokálisan fut
-- egyfelhasználós CLI alkalmazás
-- nem igényel hálózati adatbázist
-- nem igényel párhuzamos írást
-- minden adat egyetlen napi Excel fájlból származik
+A projekt ezért visszaállt a kurzus alapértelmezett Postgresére, lokálisan,
+docker-compose-zal futtatva, két külön DB-szerepkörrel:
 
-Ezért a SQLite egyszerűbb és jobban illeszkedik
-a projekt céljaihoz.
+- **smartbasket** (RW) - migráció, napi import.
+- **smartbasket_ro** (RO) - az agent `runSql`/`listCategories` toolja, DB-szerver
+  szinten kizárólag `SELECT` joggal, csak a szemantikus view-kra.
 
-Előnyei:
+Az ORM-mentesség (nincs Prisma, sima SQL migrációk) változatlan maradt - ez
+külön, továbbra is érvényes döntés (`konvenciok.md` "SQL-first" pontja).
 
-- nincs szükség Dockerre
-- nincs szükség külön adatbázis szerverre
-- egyetlen fájl az adatbázis
-- teljes SQL támogatás
-- könnyű verziókezelés
-- gyors lokális fejlesztés
+Részletek: [`docs/db-migration-rationale.md`](db-migration-rationale.md).
 
 ---
 
@@ -88,7 +87,6 @@ docs/
 
 data/
 
-- SQLite adatbázis
 - letöltött Excel fájlok
 
 logs/
@@ -106,7 +104,7 @@ Forrás:
 https://cdnarfigyeloprodweu.azureedge.net/excel/arfigyelo_napi_termekadatok.xlsx
 
 A letöltött adatokat minden import során
-SQLite adatbázisba tölti.
+Postgres adatbázisba tölti.
 
 Az AI agent kizárólag a lokális adatbázisból olvas.
 
@@ -129,29 +127,29 @@ nem az LLM dönti el.
 
 ---
 
-# 8. SQLite séma
+# 8. Postgres séma
 
 ## products
 
 A napi Árfigyelő snapshot tárolása.
 
-| Oszlop                     | Típus    |
-| -------------------------- | -------- |
-| product_identifier         | TEXT     |
-| product_name               | TEXT     |
-| category_identifier        | INTEGER  |
-| category_name              | TEXT     |
-| retailer_name              | TEXT     |
-| unit                       | TEXT     |
-| package_size               | REAL     |
-| minimum_price              | REAL     |
-| maximum_price              | REAL     |
-| minimum_unit_price         | REAL     |
-| maximum_unit_price         | REAL     |
-| retailer_count             | INTEGER  |
-| available_store_count      | INTEGER  |
-| retailer_total_store_count | INTEGER  |
-| imported_at                | DATETIME |
+| Oszlop                     | Típus       |
+| --------------------------- | ----------- |
+| product_identifier         | TEXT        |
+| product_name               | TEXT        |
+| category_identifier        | INTEGER     |
+| category_name              | TEXT        |
+| retailer_name              | TEXT        |
+| unit                       | TEXT        |
+| package_size               | NUMERIC     |
+| minimum_price              | NUMERIC     |
+| maximum_price              | NUMERIC     |
+| minimum_unit_price         | NUMERIC     |
+| maximum_unit_price         | NUMERIC     |
+| retailer_count             | INTEGER     |
+| available_store_count      | INTEGER     |
+| retailer_total_store_count | INTEGER     |
+| imported_at                | TIMESTAMPTZ |
 
 Composite index:
 
@@ -169,25 +167,27 @@ Index:
 
 A napi import állapotának nyilvántartása.
 
-| Oszlop        | Típus    |
-| ------------- | -------- |
-| import_date   | DATE     |
-| source_url    | TEXT     |
-| downloaded_at | DATETIME |
-| imported_at   | DATETIME |
-| imported_rows | INTEGER  |
-| checksum      | TEXT     |
-| status        | TEXT     |
+| Oszlop        | Típus       |
+| ------------- | ----------- |
+| import_date   | DATE        |
+| source_url    | TEXT        |
+| downloaded_at | TIMESTAMPTZ |
+| imported_at   | TIMESTAMPTZ |
+| imported_rows | INTEGER     |
+| checksum      | TEXT        |
+| status        | TEXT        |
 
 ---
 
-# 9. SQL View
+# 9. SQL View-k
 
 Az AI agent nem közvetlenül a nyers táblát kérdezi.
 
-Létrejön egy szemantikus nézet:
+Létrejön három szemantikus nézet:
 
-product_prices
+- vw_products
+- vw_categories
+- vw_best_prices
 
 Ez egyszerűbb oszlopneveket biztosít.
 
@@ -212,6 +212,10 @@ category_name
 category
 
 Ez csökkenti az LLM hibázási lehetőségét.
+
+A smartbasket_ro (RO) DB-szerepkör DB-szerver szinten kizárólag ezekre a
+view-kra kap SELECT jogot - a nyers products/import_metadata táblákra soha
+(docs/db-migration-rationale.md).
 
 ---
 
@@ -264,7 +268,7 @@ checkDatasetFreshness()
 
 ↓
 
-SQLite
+Postgres
 
 ↓
 
@@ -276,7 +280,7 @@ runSql()
 
 ↓
 
-SQLite
+Postgres
 
 ↓
 

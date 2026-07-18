@@ -19,8 +19,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
     "@smartbasket/core": "workspace:*",
-    "better-sqlite3": "^12.11.1",
     "commander": "^15.0.0",
+    "pg": "^8.16.3",
     "xlsx": "^0.18.5",
     "zod": "^4.4.3"
   },
@@ -35,8 +35,8 @@
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.8",
     "@swc/helpers": "0.5.18",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.0.0",
+    "@types/pg": "^8.15.6",
     "@vitest/coverage-v8": "^4.1.10",
     "esbuild": "^0.27.0",
     "eslint": "^10.7.0",

@@ -1,6 +1,6 @@
-import { resolveDatabasePath, runMigrations } from '@smartbasket/core';
+import { loadDatabaseConfig, runMigrations } from '@smartbasket/core';
 
-const dbPath = resolveDatabasePath();
-runMigrations(dbPath);
+const { databaseUrl } = loadDatabaseConfig();
+await runMigrations(databaseUrl);
 
-console.log(`Migrated ${dbPath}`);
+console.log(`Migrálva: ${databaseUrl}`);
