@@ -1,11 +1,12 @@
 import { createServer, type Server } from 'node:http';
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { utils, write } from 'xlsx';
 import { openReadWriteConnection } from '../database/connection.js';
 import { runMigrations } from '../database/migrate.js';
+import {
+  createTestDatabase,
+  type TestDatabase,
+} from '../database/test-database.js';
 import { importDailyDataset } from './import-daily-dataset.js';
 
 const HEADER = [
@@ -69,8 +70,7 @@ function buildFixtureExcel(): Buffer {
 describe('importDailyDataset', () => {
   let server: Server;
   let sourceUrl: string;
-  let dir: string;
-  let dbPath: string;
+  let testDb: TestDatabase;
 
   beforeEach(async () => {
     const fixture = buildFixtureExcel();
@@ -88,34 +88,35 @@ describe('importDailyDataset', () => {
     }
     sourceUrl = `http://127.0.0.1:${address.port}/daily.xlsx`;
 
-    dir = mkdtempSync(join(tmpdir(), 'smartbasket-import-'));
-    dbPath = join(dir, 'test.db');
-    runMigrations(dbPath);
+    testDb = await createTestDatabase();
+    await runMigrations(testDb.databaseUrl);
   });
 
   afterEach(async () => {
     await new Promise<void>((resolvePromise) =>
       server.close(() => resolvePromise()),
     );
-    rmSync(dir, { recursive: true, force: true });
+    await testDb.drop();
   });
 
   it('downloads, parses and writes the snapshot in one call', async () => {
-    const result = await importDailyDataset({ dbPath, sourceUrl });
+    const result = await importDailyDataset({
+      databaseUrl: testDb.databaseUrl,
+      sourceUrl,
+    });
 
     expect(result).toMatchObject({ importDate: '2026-07-12', importedRows: 2 });
     expect(result.checksum).toMatch(/^[0-9a-f]{64}$/);
 
-    const db = openReadWriteConnection(dbPath);
+    const db = await openReadWriteConnection(testDb.databaseUrl);
     const productCount = (
-      db.prepare('SELECT COUNT(*) AS count FROM products').get() as {
-        count: number;
-      }
-    ).count;
-    const metadataRow = db
-      .prepare('SELECT * FROM import_metadata')
-      .get() as Record<string, unknown>;
-    db.close();
+      await db.query<{ count: number }>(
+        'SELECT COUNT(*) AS count FROM products',
+      )
+    ).rows[0].count;
+    const metadataRow = (await db.query('SELECT * FROM import_metadata'))
+      .rows[0] as Record<string, unknown>;
+    await db.end();
 
     expect(productCount).toBe(2);
     expect(metadataRow).toMatchObject({

@@ -1,10 +1,11 @@
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import type Anthropic from '@anthropic-ai/sdk';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { openReadWriteConnection } from '../database/connection.js';
 import { runMigrations } from '../database/migrate.js';
+import {
+  createTestDatabase,
+  type TestDatabase,
+} from '../database/test-database.js';
 import { askAgent } from './ask-agent.js';
 
 const testConfig = { anthropicApiKey: 'sk-test-123', model: 'claude-sonnet-5' };
@@ -66,40 +67,33 @@ function finalTextMessage(text: string): Anthropic.Message {
 }
 
 describe('askAgent', () => {
-  let dir: string;
-  let dbPath: string;
+  let testDb: TestDatabase;
 
-  beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'smartbasket-ask-agent-'));
-    dbPath = join(dir, 'test.db');
-    runMigrations(dbPath);
+  beforeEach(async () => {
+    testDb = await createTestDatabase();
+    await runMigrations(testDb.databaseUrl);
 
-    const db = openReadWriteConnection(dbPath);
-    const insert = db.prepare(`
-      INSERT INTO products (product_identifier, product_name, category_name, retailer_name, minimum_price, maximum_price)
-      VALUES (@product_identifier, @product_name, @category_name, @retailer_name, @minimum_price, @maximum_price)
-    `);
-    insert.run({
-      product_identifier: 'p1',
-      product_name: 'Dove testápoló',
-      category_name: 'Testápolás',
-      retailer_name: 'Tesco',
-      minimum_price: 1200,
-      maximum_price: 1200,
-    });
-    insert.run({
-      product_identifier: 'p1',
-      product_name: 'Dove testápoló',
-      category_name: 'Testápolás',
-      retailer_name: 'Lidl',
-      minimum_price: 990,
-      maximum_price: 990,
-    });
-    db.close();
+    const db = await openReadWriteConnection(testDb.databaseUrl);
+    await db.query(
+      `INSERT INTO products (product_identifier, product_name, category_name, retailer_name, minimum_price, maximum_price)
+       VALUES ($1, $2, $3, $4, $5, $6), ($1, $2, $3, $7, $8, $9)`,
+      [
+        'p1',
+        'Dove testápoló',
+        'Testápolás',
+        'Tesco',
+        1200,
+        1200,
+        'Lidl',
+        990,
+        990,
+      ],
+    );
+    await db.end();
   });
 
-  afterEach(() => {
-    rmSync(dir, { recursive: true, force: true });
+  afterEach(async () => {
+    await testDb.drop();
   });
 
   it('runs the tool-use loop: calls runSql for real, feeds the result back, returns the final answer', async () => {
@@ -122,7 +116,7 @@ describe('askAgent', () => {
     const result = await askAgent('Hol a legolcsóbb a Dove testápoló?', {
       client,
       config: testConfig,
-      dbPath,
+      databaseUrlReadonly: testDb.databaseUrlReadonly,
     });
 
     expect(result.answer).toBe('A Lidl-ben a legolcsóbb, 990 Ft-ért.');
@@ -163,7 +157,7 @@ describe('askAgent', () => {
     const result = await askAgent('Milyen kategóriák érhetők el?', {
       client,
       config: testConfig,
-      dbPath,
+      databaseUrlReadonly: testDb.databaseUrlReadonly,
     });
 
     expect(result.toolCalls[0]).toMatchObject({
@@ -188,7 +182,7 @@ describe('askAgent', () => {
     const result = await askAgent('Töröld a Dove testápolót', {
       client,
       config: testConfig,
-      dbPath,
+      databaseUrlReadonly: testDb.databaseUrlReadonly,
     });
 
     expect(result.toolCalls[0].isError).toBe(true);
@@ -197,13 +191,13 @@ describe('askAgent', () => {
     });
     expect(result.answer).toBe('Nem törölhetek adatot, csak lekérdezni tudok.');
 
-    const db = openReadWriteConnection(dbPath);
+    const db = await openReadWriteConnection(testDb.databaseUrl);
     const count = (
-      db.prepare('SELECT COUNT(*) AS count FROM products').get() as {
-        count: number;
-      }
-    ).count;
-    db.close();
+      await db.query<{ count: number }>(
+        'SELECT COUNT(*) AS count FROM products',
+      )
+    ).rows[0].count;
+    await db.end();
     expect(count).toBe(2);
   });
 
@@ -216,7 +210,7 @@ describe('askAgent', () => {
     const result = await askAgent('szia', {
       client,
       config: testConfig,
-      dbPath,
+      databaseUrlReadonly: testDb.databaseUrlReadonly,
     });
 
     expect(result.answer).toBe('Szia! Miben segíthetek?');
@@ -234,7 +228,7 @@ describe('askAgent', () => {
     const result = await askAgent('kérdés', {
       client,
       config: testConfig,
-      dbPath,
+      databaseUrlReadonly: testDb.databaseUrlReadonly,
     });
 
     // 1 kezdő hívás + 5 loop-iteráció = 6 create() hívás, de az utolsó válasz

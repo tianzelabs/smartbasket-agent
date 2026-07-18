@@ -52,7 +52,7 @@ A rendszer képes legyen:
 
 - természetes nyelvű kérdések fogadására
 - SQL-lekérdezések generálására
-- SQLite adatbázis lekérdezésére
+- Postgres adatbázis lekérdezésére
 - üzletláncok árainak összehasonlítására
 - kategóriák listázására
 - termékek keresésére
@@ -70,7 +70,7 @@ Ha nem:
 
 1. letölti a napi Excel fájlt
 2. feldolgozza azt
-3. frissíti az SQLite adatbázist
+3. frissíti a Postgres adatbázist
 4. naplózza az importot
 5. csak ezután válaszol
 
@@ -128,7 +128,7 @@ A projekt első verziója NEM tartalmazza:
 
 Az agent:
 
-- mindig SQLite adatbázisból dolgozik
+- mindig Postgres adatbázisból dolgozik, a smartbasket_ro (RO) szerepkörön
 - nem talál ki árakat
 - nem talál ki termékeket
 - nem talál ki üzletláncokat
@@ -153,7 +153,7 @@ Szükség esetén letölti a napi GVH Excel fájlt.
 
 FR-04
 
-Importálja az adatokat SQLite adatbázisba.
+Importálja az adatokat Postgres adatbázisba.
 
 FR-05
 

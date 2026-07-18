@@ -1,12 +1,12 @@
 import {
   ensureFreshDataset,
-  resolveDatabasePath,
+  loadDatabaseConfig,
   resolveSourceUrl,
 } from '@smartbasket/core';
 
-const dbPath = resolveDatabasePath();
+const { databaseUrl, databaseUrlReadonly } = loadDatabaseConfig();
 const sourceUrl = resolveSourceUrl();
 
-await ensureFreshDataset({ dbPath, sourceUrl });
+await ensureFreshDataset({ databaseUrl, databaseUrlReadonly, sourceUrl });
 
-console.log(`Az adatbázis friss: ${dbPath}`);
+console.log('Az adatbázis friss.');

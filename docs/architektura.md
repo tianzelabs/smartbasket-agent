@@ -32,7 +32,7 @@ Dataset Freshness Check
 
 ↓
 
-SQLite
+Postgres
 
 ↓
 
@@ -48,7 +48,7 @@ runSql()
 
 ↓
 
-SQLite
+Postgres
 
 ↓
 
@@ -130,7 +130,7 @@ tartalmazza:
 - AI agent
 - SQL tool
 - importer
-- SQLite
+- Postgres
 - prompt
 - parser
 
@@ -179,11 +179,16 @@ Nem:
 
 Feladata:
 
-SQLite SELECT végrehajtása.
+Postgres SELECT végrehajtása, a smartbasket_ro szerepkörön.
 
-Csak olvasási művelet.
+Csak olvasási művelet - négy független rétegben (docs/db-migration-rationale.md):
 
-Tiltott:
+1. smartbasket_ro szerepkör: DB-szerver szinten csak SELECT jog, csak a vw_ view-kre.
+2. SQL-guard: csak egyetlen SELECT/WITH statement, tiltott kulcsszavak.
+3. READ ONLY tranzakció minden lekérdezésen.
+4. statement_timeout (5s).
+
+Tiltott (guard-szinten):
 
 - INSERT
 - UPDATE
@@ -247,7 +252,7 @@ download Excel
 
 ↓
 
-import SQLite
+import Postgres
 
 ↓
 
@@ -266,7 +271,7 @@ Feladata:
 
 - Excel letöltése
 - Excel olvasása
-- SQLite feltöltése
+- Postgres feltöltése (a smartbasket RW szerepkörön)
 
 Import során:
 
@@ -351,20 +356,25 @@ angol mezőneveket használ.
 
 # 12. Database
 
-SQLite adatbázis.
+Postgres adatbázis, lokálisan docker-compose-zal futtatva.
 
-Fájl:
+Két szerepkör, két kapcsolat (docs/db-migration-rationale.md):
 
-```
-
-data/smartbasket.db
-
-```
+- **smartbasket** (RW) - migráció, napi import.
+- **smartbasket_ro** (RO) - agent runSql/listCategories/checkDatasetFreshness,
+  DB-szerver szinten kizárólag SELECT jog a vw_ view-kre, sosem a raw táblákra.
 
 Fő táblák:
 
 - products
 - import_metadata
+
+Szemantikus view-k (amit az agent lát):
+
+- vw_products
+- vw_categories
+- vw_best_prices
+- vw_import_status (belső, freshness-check)
 
 A jövőben bővíthető:
 
@@ -415,19 +425,32 @@ ARFIGYELO_DAILY_XLSX_URL
 
 ```
 
-Az adatbázis elérési útja is konfigurálható.
+Az adatbázis-kapcsolatok is itt vannak (docker compose up -d után):
+
+```
+
+DATABASE_URL
+DATABASE_URL_READONLY
+
+```
 
 ---
 
 # 15. Döntések
 
-## SQLite
+## Postgres (korábban SQLite volt)
 
-Nem szükséges Docker.
+A projekt eredetileg SQLite-ot használt (nem kellett Docker, egyszerűbb és
+gyorsabb lokális fejlesztés) - ez egy tudatos, dokumentált eltérés volt a
+stack.md-től, egyfelhasználós, konkurens írás nélküli CLI-hez védhető döntés.
 
-Egyszerűbb fejlesztés.
-
-Gyorsabb lokális futás.
+A tanári visszajelzés rámutatott, hogy SQLite-on nincs Postgres-szerű
+szerepkör-alapú (role-based) védelem: a read-only kapcsolat és a SQL-guard
+mindkettő ugyanabban a Node-folyamatban futott. Erre válaszul a projekt
+áttért lokális Postgresre (docker-compose), két különálló DB-szerepkörrel
+(smartbasket RW, smartbasket_ro RO) - a smartbasket_ro DB-szerver szinten,
+a klienskódtól függetlenül csak SELECT-et kap, kizárólag a vw_ view-kre.
+Részletek: docs/db-migration-rationale.md.
 
 ---
 

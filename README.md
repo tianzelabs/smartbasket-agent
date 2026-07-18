@@ -10,7 +10,7 @@ A SmartBasket ezt a keresést egyetlen kérdéssé egyszerűsíti: `"Hol a legol
 
 ## Mit csinál valójában
 
-A CLI egy AI agentnek adja tovább a kérdést, ami magyarul, természetes nyelven kapja meg a felhasználó kérdését, SQL-lé fordítja, lefuttatja a helyi SQLite adatbázison, és a kapott sorokból ad emberi választ. Minden kérdés előtt a rendszer megnézi, hogy van-e már a mai napra sikeresen importált adat - ha igen, nem történik semmi extra, ha nem, letölti és beimportálja a GVH Árfigyelő aznapi Excel-exportját. A felhasználónak emiatt sosem kell külön "frissítést" indítania - egyszerűen csak kérdez, a rendszer eldönti, kell-e frissíteni.
+A CLI egy AI agentnek adja tovább a kérdést, ami magyarul, természetes nyelven kapja meg a felhasználó kérdését, SQL-lé fordítja, lefuttatja a helyi Postgres adatbázison, és a kapott sorokból ad emberi választ. Minden kérdés előtt a rendszer megnézi, hogy van-e már a mai napra sikeresen importált adat - ha igen, nem történik semmi extra, ha nem, letölti és beimportálja a GVH Árfigyelő aznapi Excel-exportját. A felhasználónak emiatt sosem kell külön "frissítést" indítania - egyszerűen csak kérdez, a rendszer eldönti, kell-e frissíteni.
 
 Három valós példa, ugyanabból a katalógusból, aznapi árakkal:
 
@@ -64,7 +64,7 @@ A rendszer szándékosan **nem talál ki adatot**: ha nincs a kérdésre relevá
 | Mire kell       | Mit használunk                           | Miért                                                                                                                    |
 | --------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | Nyelv, monorepo | TypeScript, Nx (pnpm workspace)          | egy repóban él a CLI és az üzleti logika, közös típusokkal, gyors cache-elt build/teszt                                  |
-| Adatbázis       | SQLite (`better-sqlite3`)                | egyfelhasználós, helyi CLI-nek nem kell Postgres/Docker - egy fájl, nulla üzemeltetés                                    |
+| Adatbázis       | Postgres (`pg`, docker-compose)          | két külön DB-szerepkör (RW/RO) valódi, DB-szerver szintű jogosultsággal - lásd [`docs/db-migration-rationale.md`](docs/db-migration-rationale.md) |
 | AI              | `@anthropic-ai/sdk`, saját tool-use loop | kézzel írt agent-loop az SDK fölött (nem a beépített `toolRunner`), hogy a mechanika végig látható és tanulható maradjon |
 | CLI             | Commander                                | egyszerű, jól ismert parancssori keretrendszer                                                                           |
 | Validáció       | Zod                                      | a rendszerhatárokon (env változók, Excel-sorok, tool-inputok) mindent explicit módon ellenőrzünk, `unknown`-ból indulva  |
@@ -74,12 +74,12 @@ A rendszer szándékosan **nem talál ki adatot**: ha nincs a kérdésre relevá
 ## Hogyan függ össze
 
 ```
-kérdés → adatfrissítés ellenőrzése → AI agent → runSql/listCategories tool → SQLite → válasz
+kérdés → adatfrissítés ellenőrzése → AI agent → runSql/listCategories tool → Postgres → válasz
 ```
 
 Az agent két saját toollal dolgozik:
 
-- **`runSql`** - csak `SELECT`/`WITH` lekérdezést enged, egy statementet egyszerre, és egy külön, ténylegesen read-only SQLite-kapcsolaton fut. Ez a projekt legkényesebb pontja (a felhasználói kérdésből generált SQL), ezért két független védelmi réteg van rajta: a guard és maga a kapcsolat jogosultsága.
+- **`runSql`** - csak `SELECT`/`WITH` lekérdezést enged, egy statementet egyszerre, és egy külön Postgres-szerepkörön (`smartbasket_ro`) fut, aminek DB-szerver szinten csak `SELECT` joga van, kizárólag a szemantikus view-kra. Ez a projekt legkényesebb pontja (a felhasználói kérdésből generált SQL), ezért négy független védelmi réteg van rajta: a DB-szerepkör jogosultsága, a SQL-guard, egy `READ ONLY` tranzakció és egy `statement_timeout`. Részletek: [`docs/db-migration-rationale.md`](docs/db-migration-rationale.md).
 - **`listCategories`** - kilistázza az elérhető termékkategóriákat, ha az agent nem biztos egy kategória pontos nevében.
 
 Az agent sosem éri el közvetlenül a nyers adattáblát, csak szemantikus SQL view-kat (`vw_products`, `vw_categories`, `vw_best_prices`) - ez egyszerűbb, stabilabb sémát ad neki, és csökkenti a hallucináció esélyét.
@@ -90,6 +90,7 @@ Az agent sosem éri el közvetlenül a nyers adattáblát, csak szemantikus SQL 
 pnpm install
 cp .env.example .env
 # írd be az ANTHROPIC_API_KEY-t a .env-be
+docker compose up -d   # lokális Postgres (OrbStack vagy Docker Desktop)
 ```
 
 Ennyi. Az adatbázis séma és a napi GVH-adat automatikusan létrejön az első `ask` vagy `refresh` híváskor - nincs külön migrációs vagy seed-lépés.
@@ -109,9 +110,12 @@ Minden `ask`-hoz JSONL napló készül a `logs/` mappába: a kérdés, a generá
 ## Fejlesztőknek
 
 ```bash
+docker compose up -d                                 # a tesztekhez is kell egy futó lokális Postgres
 pnpm exec nx run-many -t build,lint,typecheck,test   # teljes ellenőrzés
 pnpm exec nx test core                               # csak a packages/core tesztjei
 ```
+
+A tesztek minden tesztesethez saját, egyedi nevű Postgres adatbázist hoznak létre és törölnek (`test-database.ts`) - teljes izoláció, ugyanaz az elv, mint a korábbi SQLite-os `mkdtempSync` fájl-izoláció volt.
 
 A kódbázis két Nx projektre oszlik: `apps/cli` csak I/O-t végez (parancsok, kimenet), minden üzleti logika a `packages/core`-ban él, alkategóriákra bontva (`agent`, `tools`, `prompts`, `database`, `importer`, `parser`, `freshness`, `config`, `logging`).
 
@@ -121,6 +125,7 @@ A fejlesztés fázisolt terve, minden fázishoz tartozó commit- és PR-lánccal
 - [`docs/system-prompt.md`](docs/system-prompt.md) / [`docs/system-prompt-improvements.md`](docs/system-prompt-improvements.md) - az agent system promptja és a rajta végzett, indokolt javítások
 - [`docs/roi.md`](docs/roi.md) - mennyit spórol ez egy 5 fős irodának, számokkal
 - [`docs/plugins.md`](docs/plugins.md) - a projekthez telepített Claude Code plugin-ök és hogy miért pont ezek
+- [`docs/db-migration-rationale.md`](docs/db-migration-rationale.md) - miért állt át a projekt SQLite-ról Postgresre
 
 ## Mi nincs benne (még)
 

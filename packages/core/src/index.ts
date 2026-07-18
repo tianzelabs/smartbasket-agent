@@ -4,7 +4,7 @@ export * from './lib/config/agent-config.js';
 export * from './lib/logging/agent-log.js';
 export * from './lib/prompts/system-prompt.js';
 export * from './lib/database/connection.js';
-export * from './lib/database/db-path.js';
+export * from './lib/database/database-config.js';
 export * from './lib/database/migrate.js';
 export * from './lib/parser/gvh-product-row.js';
 export * from './lib/parser/hungarian-number.js';

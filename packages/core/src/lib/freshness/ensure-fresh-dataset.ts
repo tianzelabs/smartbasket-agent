@@ -2,7 +2,8 @@ import { importDailyDataset } from '../importer/import-daily-dataset.js';
 import { checkDatasetFreshness } from './check-dataset-freshness.js';
 
 export interface EnsureFreshDatasetOptions {
-  dbPath: string;
+  databaseUrl: string;
+  databaseUrlReadonly: string;
   sourceUrl: string;
 }
 
@@ -11,7 +12,7 @@ export interface EnsureFreshDatasetOptions {
 export async function ensureFreshDataset(
   options: EnsureFreshDatasetOptions,
 ): Promise<void> {
-  if (checkDatasetFreshness(options.dbPath)) {
+  if (await checkDatasetFreshness(options.databaseUrlReadonly)) {
     return;
   }
   await importDailyDataset(options);

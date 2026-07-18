@@ -1,18 +1,23 @@
-import { mkdirSync } from 'node:fs';
-import { dirname } from 'node:path';
-import Database from 'better-sqlite3';
+import pg from 'pg';
+import './pg-type-parsers.js';
 
-export type SmartBasketDatabase = InstanceType<typeof Database>;
+const { Client } = pg;
+const STATEMENT_TIMEOUT_MS = 5000;
+
+export type SmartBasketDatabase = pg.Client;
 
 // Read-write kapcsolat: kizárólag a migráció és az importer használja
 // (architektura.md 9. pont, konvenciok.md 7. pont). Az agent runSql toolja
-// egy külön, read-only kapcsolaton fut.
-export function openReadWriteConnection(dbPath: string): SmartBasketDatabase {
-  if (dbPath !== ':memory:') {
-    mkdirSync(dirname(dbPath), { recursive: true });
-  }
-  const db = new Database(dbPath);
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
-  return db;
+// egy külön, read-only kapcsolaton fut, a smartbasket_ro Postgres-
+// szerepkörön (tools/run-sql/db-readonly.ts, docs/db-migration-rationale.md).
+export async function openReadWriteConnection(
+  databaseUrl: string,
+): Promise<SmartBasketDatabase> {
+  const client = new Client({
+    connectionString: databaseUrl,
+    statement_timeout: STATEMENT_TIMEOUT_MS,
+    application_name: 'smartbasket-rw',
+  });
+  await client.connect();
+  return client;
 }

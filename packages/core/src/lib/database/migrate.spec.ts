@@ -1,108 +1,92 @@
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { openReadWriteConnection } from './connection.js';
 import { runMigrations } from './migrate.js';
+import { createTestDatabase, type TestDatabase } from './test-database.js';
 
 interface NameRow {
-  name: string;
+  table_name: string;
 }
 
 describe('runMigrations', () => {
-  let dir: string;
-  let dbPath: string;
+  let testDb: TestDatabase;
 
-  beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'smartbasket-db-'));
-    dbPath = join(dir, 'test.db');
+  beforeEach(async () => {
+    testDb = await createTestDatabase();
   });
 
-  afterEach(() => {
-    rmSync(dir, { recursive: true, force: true });
+  afterEach(async () => {
+    await testDb.drop();
   });
 
-  it('creates the products and import_metadata tables', () => {
-    runMigrations(dbPath);
+  it('creates the products and import_metadata tables', async () => {
+    await runMigrations(testDb.databaseUrl);
 
-    const db = new Database(dbPath, { readonly: true });
-    const tables = (
-      db
-        .prepare(
-          "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name",
-        )
-        .all() as NameRow[]
-    ).map((row) => row.name);
-    db.close();
+    const db = await openReadWriteConnection(testDb.databaseUrl);
+    const { rows } = await db.query<NameRow>(
+      "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' ORDER BY table_name",
+    );
+    await db.end();
 
-    expect(tables).toEqual(
+    expect(rows.map((row) => row.table_name)).toEqual(
       expect.arrayContaining(['products', 'import_metadata']),
     );
   });
 
-  it('creates the semantic views the agent is allowed to query', () => {
-    runMigrations(dbPath);
+  it('creates the semantic views the agent is allowed to query', async () => {
+    await runMigrations(testDb.databaseUrl);
 
-    const db = new Database(dbPath, { readonly: true });
-    const views = (
-      db
-        .prepare(
-          "SELECT name FROM sqlite_master WHERE type = 'view' ORDER BY name",
-        )
-        .all() as NameRow[]
-    ).map((row) => row.name);
-    db.close();
+    const db = await openReadWriteConnection(testDb.databaseUrl);
+    const { rows } = await db.query<NameRow>(
+      "SELECT table_name FROM information_schema.views WHERE table_schema = 'public' ORDER BY table_name",
+    );
+    await db.end();
 
-    expect(views).toEqual(['vw_best_prices', 'vw_categories', 'vw_products']);
+    expect(rows.map((row) => row.table_name)).toEqual([
+      'vw_best_prices',
+      'vw_categories',
+      'vw_import_status',
+      'vw_products',
+    ]);
   });
 
-  it('is idempotent - running twice applies each migration only once', () => {
-    runMigrations(dbPath);
-    expect(() => runMigrations(dbPath)).not.toThrow();
+  it('is idempotent - running twice applies each migration only once', async () => {
+    await runMigrations(testDb.databaseUrl);
+    await expect(runMigrations(testDb.databaseUrl)).resolves.not.toThrow();
 
-    const db = new Database(dbPath, { readonly: true });
-    const { count } = db
-      .prepare('SELECT COUNT(*) AS count FROM schema_migrations')
-      .get() as {
-      count: number;
-    };
-    db.close();
+    const db = await openReadWriteConnection(testDb.databaseUrl);
+    const { rows } = await db.query<{ count: number }>(
+      'SELECT COUNT(*) AS count FROM schema_migrations',
+    );
+    await db.end();
 
-    expect(count).toBe(1);
+    expect(rows[0].count).toBe(1);
   });
 
-  it('vw_best_prices picks the single cheapest retailer per product', () => {
-    runMigrations(dbPath);
-    const db = new Database(dbPath);
-    const insert = db.prepare(`
-      INSERT INTO products (product_identifier, product_name, category_name, retailer_name, minimum_price, maximum_price)
-      VALUES (@product_identifier, @product_name, @category_name, @retailer_name, @minimum_price, @maximum_price)
-    `);
-    insert.run({
-      product_identifier: 'p1',
-      product_name: 'Dove testápoló',
-      category_name: 'Testápolás',
-      retailer_name: 'Tesco',
-      minimum_price: 1200,
-      maximum_price: 1200,
-    });
-    insert.run({
-      product_identifier: 'p1',
-      product_name: 'Dove testápoló',
-      category_name: 'Testápolás',
-      retailer_name: 'Lidl',
-      minimum_price: 990,
-      maximum_price: 990,
-    });
+  it('vw_best_prices picks the single cheapest retailer per product', async () => {
+    await runMigrations(testDb.databaseUrl);
+    const db = await openReadWriteConnection(testDb.databaseUrl);
+    await db.query(
+      `INSERT INTO products (product_identifier, product_name, category_name, retailer_name, minimum_price, maximum_price)
+       VALUES ($1, $2, $3, $4, $5, $6), ($1, $2, $3, $7, $8, $9)`,
+      [
+        'p1',
+        'Dove testápoló',
+        'Testápolás',
+        'Tesco',
+        1200,
+        1200,
+        'Lidl',
+        990,
+        990,
+      ],
+    );
 
-    const cheapest = db
-      .prepare('SELECT retailer, price FROM vw_best_prices WHERE id = ?')
-      .get('p1') as {
-      retailer: string;
-      price: number;
-    };
-    db.close();
+    const { rows } = await db.query(
+      'SELECT retailer, price FROM vw_best_prices WHERE id = $1',
+      ['p1'],
+    );
+    await db.end();
 
-    expect(cheapest).toEqual({ retailer: 'Lidl', price: 990 });
+    expect(rows[0]).toEqual({ retailer: 'Lidl', price: 990 });
   });
 });

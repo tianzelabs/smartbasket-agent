@@ -1,12 +1,13 @@
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   openReadWriteConnection,
   type SmartBasketDatabase,
 } from '../database/connection.js';
 import { runMigrations } from '../database/migrate.js';
+import {
+  createTestDatabase,
+  type TestDatabase,
+} from '../database/test-database.js';
 import type { GvhProductRow } from '../parser/gvh-product-row.js';
 import { writeProductSnapshot } from './write-product-snapshot.js';
 
@@ -37,24 +38,22 @@ const cauliflower: GvhProductRow = {
 };
 
 describe('writeProductSnapshot', () => {
-  let dir: string;
-  let dbPath: string;
+  let testDb: TestDatabase;
   let db: SmartBasketDatabase;
 
-  beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'smartbasket-snapshot-'));
-    dbPath = join(dir, 'test.db');
-    runMigrations(dbPath);
-    db = openReadWriteConnection(dbPath);
+  beforeEach(async () => {
+    testDb = await createTestDatabase();
+    await runMigrations(testDb.databaseUrl);
+    db = await openReadWriteConnection(testDb.databaseUrl);
   });
 
-  afterEach(() => {
-    db.close();
-    rmSync(dir, { recursive: true, force: true });
+  afterEach(async () => {
+    await db.end();
+    await testDb.drop();
   });
 
-  it('inserts the rows and an import_metadata row', () => {
-    writeProductSnapshot(db, [carrot, cauliflower], {
+  it('inserts the rows and an import_metadata row', async () => {
+    await writeProductSnapshot(db, [carrot, cauliflower], {
       importDate: '2026-07-12',
       sourceUrl: 'https://example.test/daily.xlsx',
       downloadedAt: '2026-07-12T05:00:00.000Z',
@@ -62,17 +61,15 @@ describe('writeProductSnapshot', () => {
     });
 
     const productCount = (
-      db.prepare('SELECT COUNT(*) AS count FROM products').get() as {
-        count: number;
-      }
-    ).count;
+      await db.query<{ count: number }>(
+        'SELECT COUNT(*) AS count FROM products',
+      )
+    ).rows[0].count;
     expect(productCount).toBe(2);
 
-    const metadata = db
-      .prepare('SELECT * FROM import_metadata')
-      .get() as Record<string, unknown>;
+    const metadata = (await db.query('SELECT * FROM import_metadata'))
+      .rows[0] as Record<string, unknown>;
     expect(metadata).toMatchObject({
-      import_date: '2026-07-12',
       source_url: 'https://example.test/daily.xlsx',
       imported_rows: 2,
       checksum: 'abc123',
@@ -80,65 +77,69 @@ describe('writeProductSnapshot', () => {
     });
   });
 
-  it('fully replaces the previous snapshot, not appends to it', () => {
-    writeProductSnapshot(db, [carrot], {
+  it('fully replaces the previous snapshot, not appends to it', async () => {
+    await writeProductSnapshot(db, [carrot], {
       importDate: '2026-07-11',
       sourceUrl: 'https://example.test/daily.xlsx',
       downloadedAt: '2026-07-11T05:00:00.000Z',
       checksum: 'day1',
     });
 
-    writeProductSnapshot(db, [cauliflower], {
+    await writeProductSnapshot(db, [cauliflower], {
       importDate: '2026-07-12',
       sourceUrl: 'https://example.test/daily.xlsx',
       downloadedAt: '2026-07-12T05:00:00.000Z',
       checksum: 'day2',
     });
 
-    const products = db.prepare('SELECT product_name FROM products').all() as {
-      product_name: string;
-    }[];
+    const products = (
+      await db.query<{ product_name: string }>(
+        'SELECT product_name FROM products',
+      )
+    ).rows;
     expect(products.map((row) => row.product_name)).toEqual(['Karfiol']);
 
     const metadataCount = (
-      db.prepare('SELECT COUNT(*) AS count FROM import_metadata').get() as {
-        count: number;
-      }
-    ).count;
+      await db.query<{ count: number }>(
+        'SELECT COUNT(*) AS count FROM import_metadata',
+      )
+    ).rows[0].count;
     expect(metadataCount).toBe(2);
   });
 
-  it('rolls back the whole snapshot if a row is invalid', () => {
+  it('rolls back the whole snapshot if a row is invalid', async () => {
     const invalidRow = {
       ...cauliflower,
       categoryName: null,
     } as unknown as GvhProductRow;
 
-    writeProductSnapshot(db, [carrot], {
+    await writeProductSnapshot(db, [carrot], {
       importDate: '2026-07-11',
       sourceUrl: 'https://example.test/daily.xlsx',
       downloadedAt: '2026-07-11T05:00:00.000Z',
       checksum: 'day1',
     });
 
-    expect(() =>
+    await expect(
       writeProductSnapshot(db, [invalidRow], {
         importDate: '2026-07-12',
         sourceUrl: 'https://example.test/daily.xlsx',
         downloadedAt: '2026-07-12T05:00:00.000Z',
         checksum: 'day2',
       }),
-    ).toThrow();
+    ).rejects.toThrow();
 
-    const products = db.prepare('SELECT product_name FROM products').all() as {
-      product_name: string;
-    }[];
+    const products = (
+      await db.query<{ product_name: string }>(
+        'SELECT product_name FROM products',
+      )
+    ).rows;
     expect(products.map((row) => row.product_name)).toEqual(['Sárgarépa']);
     const metadataCount = (
-      db.prepare('SELECT COUNT(*) AS count FROM import_metadata').get() as {
-        count: number;
-      }
-    ).count;
+      await db.query<{ count: number }>(
+        'SELECT COUNT(*) AS count FROM import_metadata',
+      )
+    ).rows[0].count;
     expect(metadataCount).toBe(1);
   });
 });

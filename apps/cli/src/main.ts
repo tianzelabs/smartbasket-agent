@@ -4,7 +4,7 @@ import {
   askAgent,
   createLogFilePath,
   ensureFreshDataset,
-  resolveDatabasePath,
+  loadDatabaseConfig,
   resolveSourceUrl,
   runMigrations,
 } from '@smartbasket/core';
@@ -14,14 +14,18 @@ const program = new Command();
 const logFilePath = createLogFilePath();
 
 async function handleAsk(question: string, showPrompt: boolean): Promise<void> {
-  const dbPath = resolveDatabasePath();
+  const { databaseUrl, databaseUrlReadonly } = loadDatabaseConfig();
   try {
     // BRS 5. pont: minden kérdés előtt ellenőrizzük/frissítjük az adatot -
     // ezt nem az LLM dönti el, alkalmazáslogika.
-    runMigrations(dbPath);
-    await ensureFreshDataset({ dbPath, sourceUrl: resolveSourceUrl() });
+    await runMigrations(databaseUrl);
+    await ensureFreshDataset({
+      databaseUrl,
+      databaseUrlReadonly,
+      sourceUrl: resolveSourceUrl(),
+    });
 
-    const result = await askAgent(question, { dbPath });
+    const result = await askAgent(question, { databaseUrlReadonly });
 
     if (showPrompt) {
       console.log('--- system prompt ---');
@@ -97,11 +101,15 @@ program
     'Frissíti a helyi adatbázist a legfrissebb GVH Árfigyelő adatokkal, ha szükséges',
   )
   .action(async () => {
-    const dbPath = resolveDatabasePath();
+    const { databaseUrl, databaseUrlReadonly } = loadDatabaseConfig();
     try {
-      runMigrations(dbPath);
-      await ensureFreshDataset({ dbPath, sourceUrl: resolveSourceUrl() });
-      console.log(`Az adatbázis friss: ${dbPath}`);
+      await runMigrations(databaseUrl);
+      await ensureFreshDataset({
+        databaseUrl,
+        databaseUrlReadonly,
+        sourceUrl: resolveSourceUrl(),
+      });
+      console.log('Az adatbázis friss.');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`Hiba történt az adatfrissítés során: ${message}`);
