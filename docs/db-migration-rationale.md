@@ -52,15 +52,12 @@ joga van a `public` sémában:
 A séma írása (migráció, napi import) egy külön, `smartbasket` (RW) szerepkörön megy –
 ugyanaz a RW/RO szétválasztás, mint eddig, csak most DB-szerver szinten is kikényszerítve.
 
-## 3. Miért nem Prisma
+A négy réteget az órai `plantbase` referencia `db-readonly.ts`-ét megnézve alakítottam
+ki: ott is külön RO szerepkör (`plantbase_ro`), guard, `START TRANSACTION READ ONLY`
+és egy 5 másodperces `statement_timeout` védi a lekérdezéseket - ugyanezt a mintát
+követtem.
 
-A projekt eredeti döntése (`konvenciok.md` 6. pont, "SQL-first, no ORM") változatlan marad: a
-sémát sima `.sql` migrációs fájlok írják le, amiket egy kis, kézzel írt migrációs futtató
-alkalmaz – nincs Prisma, nincs ORM az agent SQL-je előtt. Ez a Postgres-váltás után is így marad;
-az egyetlen visszamaradó, dokumentált eltérés a `stack.md`-től ez az ORM-mentesség, nem az
-adatbázis-motor.
-
-## 4. Mi nem változik
+## 3. Mi nem változik
 
 - A request flow változatlan: `CLI → ensureFreshDataset()/checkDatasetFreshness() → DB → Agent
   (tool loop) → runSql() → DB → NL válasz`.
