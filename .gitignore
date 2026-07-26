@@ -22,6 +22,10 @@ data/*.db-journal
 data/*.db-shm
 data/*.db-wal
 data/*.xlsx
+# tudásbázis nyers cache (data/knowledge/sources.json manifestből újra letölthető
+# fetch-knowledge.ts-sel - lásd docs/knowledge-base-architecture.md)
+data/knowledge/raw/*
+!data/knowledge/raw/.gitkeep
 logs/*.jsonl
 
 # claude code local (personal permissions, not shared)

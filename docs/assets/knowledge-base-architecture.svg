@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 780" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1180" height="780" fill="#ffffff"/>
+  <text x="20" y="30" font-size="18" font-weight="bold" fill="#111">SmartBasket – tudásbázis karbantartás (ingest pipeline)</text>
+
+  <!-- Lane labels -->
+  <text x="20" y="70" font-size="13" font-weight="bold" fill="#555">1) ÚJ / VÁLTOZOTT dokumentum</text>
+  <text x="20" y="500" font-size="13" font-weight="bold" fill="#555">2) TÖRÖLT dokumentum (nincs már a manifestben)</text>
+  <text x="20" y="660" font-size="13" font-weight="bold" fill="#555">3) Mi triggereli a futást</text>
+
+  <!-- Row 1: source -->
+  <rect x="20" y="90" width="180" height="60" rx="8" fill="#eef4ff" stroke="#3b6fd6"/>
+  <text x="110" y="115" font-size="13" text-anchor="middle" fill="#111">data/knowledge/</text>
+  <text x="110" y="132" font-size="13" text-anchor="middle" fill="#111">sources.json</text>
+  <text x="110" y="147" font-size="11" text-anchor="middle" fill="#555">(a "forrás igazsága")</text>
+
+  <line x1="200" y1="120" x2="250" y2="120" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="90" width="180" height="60" rx="8" fill="#eef4ff" stroke="#3b6fd6"/>
+  <text x="340" y="115" font-size="13" text-anchor="middle" fill="#111">pnpm knowledge:fetch</text>
+  <text x="340" y="132" font-size="12" text-anchor="middle" fill="#111">fetchSourceBytes()</text>
+  <text x="340" y="147" font-size="11" text-anchor="middle" fill="#555">letöltés (HTTP)</text>
+
+  <line x1="430" y1="120" x2="480" y2="120" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="480" y="90" width="200" height="60" rx="8" fill="#eef4ff" stroke="#3b6fd6"/>
+  <text x="580" y="115" font-size="13" text-anchor="middle" fill="#111">data/knowledge/raw/</text>
+  <text x="580" y="132" font-size="12" text-anchor="middle" fill="#111">nyers cache (.html/.pdf)</text>
+  <text x="580" y="147" font-size="11" text-anchor="middle" fill="#555">gitignore-olt, újra letölthető</text>
+
+  <!-- down to ingest -->
+  <line x1="580" y1="150" x2="580" y2="190" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="480" y="190" width="200" height="60" rx="8" fill="#fff4e5" stroke="#c77700"/>
+  <text x="580" y="215" font-size="13" text-anchor="middle" fill="#111">pnpm knowledge:ingest</text>
+  <text x="580" y="232" font-size="12" text-anchor="middle" fill="#111">sha256Hex(nyers bájtok)</text>
+  <text x="580" y="247" font-size="11" text-anchor="middle" fill="#555">= "változásérzékelés"</text>
+
+  <line x1="580" y1="250" x2="580" y2="290" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- decision diamond -->
+  <polygon points="580,290 700,335 580,380 460,335" fill="#fff9e6" stroke="#c77700"/>
+  <text x="580" y="330" font-size="12" text-anchor="middle" fill="#111">content_hash egyezik</text>
+  <text x="580" y="345" font-size="12" text-anchor="middle" fill="#111">a knowledge_documents</text>
+  <text x="580" y="360" font-size="12" text-anchor="middle" fill="#111">tárolt hash-ével?</text>
+
+  <!-- yes branch -->
+  <line x1="700" y1="335" x2="900" y2="335" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="800" y="325" font-size="11" text-anchor="middle" fill="#2a7a2a">igen</text>
+  <rect x="900" y="305" width="240" height="60" rx="8" fill="#eafbea" stroke="#2a7a2a"/>
+  <text x="1020" y="330" font-size="13" text-anchor="middle" fill="#111">status: skipped-unchanged</text>
+  <text x="1020" y="347" font-size="11" text-anchor="middle" fill="#555">NINCS újra chunkolás/embedding</text>
+
+  <!-- no branch -->
+  <line x1="580" y1="380" x2="580" y2="420" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="595" y="405" font-size="11" fill="#b33">nem (új v. változott)</text>
+
+  <rect x="20" y="420" width="200" height="55" rx="8" fill="#fdeeee" stroke="#b33"/>
+  <text x="120" y="443" font-size="12" text-anchor="middle" fill="#111">extractHtmlBlocks() /</text>
+  <text x="120" y="459" font-size="12" text-anchor="middle" fill="#111">extractPdfBlocks()</text>
+
+  <line x1="220" y1="447" x2="270" y2="447" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="270" y="420" width="200" height="55" rx="8" fill="#fdeeee" stroke="#b33"/>
+  <text x="370" y="443" font-size="12" text-anchor="middle" fill="#111">chunkDocument()</text>
+  <text x="370" y="459" font-size="11" text-anchor="middle" fill="#555">H2/H3 heading-alapú</text>
+
+  <line x1="470" y1="447" x2="520" y2="447" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="520" y="420" width="200" height="55" rx="8" fill="#fdeeee" stroke="#b33"/>
+  <text x="620" y="443" font-size="12" text-anchor="middle" fill="#111">embedTexts()</text>
+  <text x="620" y="459" font-size="11" text-anchor="middle" fill="#555">Cohere embed-v4.0, search_document</text>
+
+  <line x1="720" y1="447" x2="770" y2="447" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="770" y="420" width="290" height="55" rx="8" fill="#fdeeee" stroke="#b33"/>
+  <text x="915" y="440" font-size="12" text-anchor="middle" fill="#111">writeKnowledgeDocument()</text>
+  <text x="915" y="456" font-size="10" text-anchor="middle" fill="#555">upsert + chunk-csere, 1 tranzakcióban</text>
+
+  <line x1="380" y1="380" x2="120" y2="420" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Lane 2: deletion -->
+  <rect x="20" y="520" width="260" height="55" rx="8" fill="#f3eefc" stroke="#7a3bd6"/>
+  <text x="150" y="543" font-size="12" text-anchor="middle" fill="#111">URL hiányzik a manifestből</text>
+  <text x="150" y="559" font-size="11" text-anchor="middle" fill="#555">(törölt/megszüntetett forrás)</text>
+
+  <line x1="280" y1="547" x2="330" y2="547" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="330" y="520" width="330" height="55" rx="8" fill="#f3eefc" stroke="#7a3bd6"/>
+  <text x="495" y="540" font-size="12" text-anchor="middle" fill="#111">syncKnowledgeBase()</text>
+  <text x="495" y="557" font-size="10" text-anchor="middle" fill="#555">törli a manifestből lemaradt source_url-eket</text>
+
+  <line x1="660" y1="547" x2="710" y2="547" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="710" y="520" width="280" height="55" rx="8" fill="#f3eefc" stroke="#7a3bd6"/>
+  <text x="850" y="540" font-size="12" text-anchor="middle" fill="#111">ON DELETE CASCADE</text>
+  <text x="850" y="557" font-size="11" text-anchor="middle" fill="#555">knowledge_chunks automatikusan törlődik</text>
+
+  <!-- Lane 3: trigger -->
+  <rect x="20" y="670" width="1120" height="70" rx="8" fill="#f5f5f5" stroke="#777"/>
+  <text x="40" y="693" font-size="12" fill="#111">Ma: manuális futtatás - "pnpm knowledge:fetch" majd "pnpm knowledge:ingest" (2. pont, docs/knowledge-base-architecture.md).</text>
+  <text x="40" y="712" font-size="12" fill="#111">Jövőbeli irány (nem implementált): ütemezett/CI job vagy webhook-alapú trigger a forrás oldalak változásakor - lásd a dokumentum "Jövőbeli triggerelés" szakaszát.</text>
+
+  <!-- link diamond no-branch text to lane1 clarifies -->
+</svg>

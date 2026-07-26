@@ -1,5 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { CohereClientV2 } from 'cohere-ai';
 import { type AgentConfig, loadAgentConfig } from '../config/agent-config.js';
+import { loadCohereConfig } from '../config/cohere-config.js';
 import { loadDatabaseConfig } from '../database/database-config.js';
 import { buildSystemPrompt } from '../prompts/system-prompt.js';
 import {
@@ -10,18 +12,33 @@ import {
   RUN_SQL_TOOL_DEFINITION,
   runSql,
 } from '../tools/run-sql/run-sql-tool.js';
+import {
+  SEARCH_KNOWLEDGE_TOOL_DEFINITION,
+  searchKnowledge,
+} from '../knowledge/search/search-knowledge.js';
 
 const MAX_TOOL_ITERATIONS = 5;
 const MAX_TOKENS = 1024;
 const TOOLS: Anthropic.Tool[] = [
   RUN_SQL_TOOL_DEFINITION,
   LIST_CATEGORIES_TOOL_DEFINITION,
+  SEARCH_KNOWLEDGE_TOOL_DEFINITION,
 ];
 
 export interface AskAgentOptions {
   client?: Anthropic;
+  cohereClient?: CohereClientV2;
   config?: AgentConfig;
   databaseUrlReadonly?: string;
+}
+
+interface ToolExecutionDeps {
+  databaseUrlReadonly: string;
+  anthropicClient: Anthropic;
+  // Csak akkor épül fel (loadCohereConfig() + kliens), ha a searchKnowledge
+  // toolt az agent ténylegesen meghívja - így a runSql/listCategories-only
+  // futásokhoz (és teszteikhez) nem kell COHERE_API_KEY (lásd askAgent()).
+  cohereClient?: CohereClientV2;
 }
 
 export interface ToolCallLogEntry {
@@ -59,17 +76,37 @@ function isToolUseBlock(
 }
 
 async function executeTool(
-  databaseUrlReadonly: string,
+  deps: ToolExecutionDeps,
   name: string,
   input: unknown,
 ): Promise<{ result: unknown; isError: boolean }> {
   try {
     if (name === 'runSql') {
-      const query = extractQuery(input);
-      return { result: await runSql(databaseUrlReadonly, query), isError: false };
+      const query = extractStringField(input, 'query', 'runSql');
+      return {
+        result: await runSql(deps.databaseUrlReadonly, query),
+        isError: false,
+      };
     }
     if (name === 'listCategories') {
-      return { result: await listCategories(databaseUrlReadonly), isError: false };
+      return {
+        result: await listCategories(deps.databaseUrlReadonly),
+        isError: false,
+      };
+    }
+    if (name === 'searchKnowledge') {
+      const question = extractStringField(input, 'question', 'searchKnowledge');
+      const cohereClient =
+        deps.cohereClient ??
+        new CohereClientV2({ token: loadCohereConfig().cohereApiKey });
+      return {
+        result: await searchKnowledge(question, {
+          anthropicClient: deps.anthropicClient,
+          cohereClient,
+          databaseUrlReadonly: deps.databaseUrlReadonly,
+        }),
+        isError: false,
+      };
     }
     return { result: { error: `Ismeretlen tool: ${name}` }, isError: true };
   } catch (error) {
@@ -78,17 +115,21 @@ async function executeTool(
   }
 }
 
-function extractQuery(input: unknown): string {
+function extractStringField(
+  input: unknown,
+  field: string,
+  toolName: string,
+): string {
   if (
     typeof input === 'object' &&
     input !== null &&
-    'query' in input &&
-    typeof (input as { query: unknown }).query === 'string'
+    field in input &&
+    typeof (input as Record<string, unknown>)[field] === 'string'
   ) {
-    return (input as { query: string }).query;
+    return (input as Record<string, string>)[field];
   }
   throw new Error(
-    'A runSql tool bemenete hiányzik vagy hibás (query mező szükséges).',
+    `A ${toolName} tool bemenete hiányzik vagy hibás (${field} mező szükséges).`,
   );
 }
 
@@ -105,6 +146,11 @@ export async function askAgent(
     options.client ?? new Anthropic({ apiKey: config.anthropicApiKey });
   const databaseUrlReadonly =
     options.databaseUrlReadonly ?? loadDatabaseConfig().databaseUrlReadonly;
+  const toolDeps: ToolExecutionDeps = {
+    databaseUrlReadonly,
+    anthropicClient: client,
+    cohereClient: options.cohereClient,
+  };
   const systemPrompt = buildSystemPrompt({ hasDatabaseAccess: true });
 
   const messages: Anthropic.MessageParam[] = [
@@ -142,7 +188,7 @@ export async function askAgent(
     // sorrend a toolCalls naplóban (konvenciok.md: determinisztikus viselkedés).
     for (const block of toolUseBlocks) {
       const { result, isError } = await executeTool(
-        databaseUrlReadonly,
+        toolDeps,
         block.name,
         block.input,
       );

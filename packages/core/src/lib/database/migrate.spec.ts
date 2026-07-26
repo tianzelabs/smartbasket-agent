@@ -45,6 +45,7 @@ describe('runMigrations', () => {
       'vw_best_prices',
       'vw_categories',
       'vw_import_status',
+      'vw_knowledge_search',
       'vw_products',
     ]);
   });
@@ -59,7 +60,10 @@ describe('runMigrations', () => {
     );
     await db.end();
 
-    expect(rows[0].count).toBe(1);
+    // Két migrációs fájl van (0001_init.sql, 0002_knowledge_base.sql) - ha
+    // ez a szám nem egyezne a fájlok számával, az azt jelentené, hogy egy
+    // migráció duplán futott le.
+    expect(rows[0].count).toBe(2);
   });
 
   it('vw_best_prices picks the single cheapest retailer per product', async () => {

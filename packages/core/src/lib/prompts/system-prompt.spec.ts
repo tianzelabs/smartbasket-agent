@@ -13,4 +13,23 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('<override>');
     expect(prompt).toContain('NINCS adatbázis-hozzáférésed');
   });
+
+  it('lists searchKnowledge as an available tool', () => {
+    expect(SYSTEM_PROMPT).toContain('searchKnowledge(question)');
+  });
+
+  it('requires source attribution for knowledge-base answers', () => {
+    expect(SYSTEM_PROMPT).toContain('MINDIG forráshivatkozással');
+  });
+
+  it('requires an explicit "no answer" instead of fabricating when below the relevance threshold', () => {
+    expect(SYSTEM_PROMPT).toContain('belowThreshold: true');
+    expect(SYSTEM_PROMPT).toContain('NE találj ki tanácsot');
+  });
+
+  it('tells the agent that runSql/listCategories always win for price or stock questions, even when knowledge is also relevant', () => {
+    expect(SYSTEM_PROMPT).toContain(
+      'Árra vagy készletre vonatkozó kérdésnél mindig a runSql',
+    );
+  });
 });

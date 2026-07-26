@@ -1,11 +1,17 @@
 # SmartBasket Agent — lokális Postgres (OrbStack vagy Docker Desktop futtatja).
 # Két jog: a smartbasket (RW) viszi a sémát/migrációt/napi importot, a
-# smartbasket_ro (RO) az agent runSql/listCategories toolját szolgálja ki
-# (docs/db-migration-rationale.md). A RO szerepkört az initdb script hozza létre.
+# smartbasket_ro (RO) az agent runSql/listCategories/searchKnowledge toolját
+# szolgálja ki (docs/db-migration-rationale.md). A RO szerepkört az initdb
+# script hozza létre.
+#
+# pgvector/pgvector:pg17 - a hivatalos postgres:17 image + előre telepített
+# pgvector extension (HF3 tudásbázis, 0002_knowledge_base.sql). Nem sima
+# postgres:17 + kézi build, mert a pgvector projekt saját maga karbantart egy
+# kész image-et minden Postgres major verzióhoz - nincs ok újra buildelni.
 
 services:
   postgres:
-    image: postgres:17
+    image: pgvector/pgvector:pg17
     container_name: smartbasket-pg
     restart: unless-stopped
     environment:

@@ -22,7 +22,7 @@ pnpm smartbasket ask "<question>"   # e.g. pnpm smartbasket ask "Hol a legolcsó
 pnpm test
 ```
 
-Key libraries: `pg` (Postgres driver), Anthropic SDK (AI), Commander (CLI), Zod (validation), `xlsx` (Excel import), Vitest (tests), ESLint/Prettier.
+Key libraries: `pg` (Postgres driver), Anthropic SDK (AI), Commander (CLI), Zod (validation), `xlsx` (Excel import), Vitest (tests), ESLint/Prettier. HF3 RAG layer adds: `cohere-ai` (embedding + rerank), `@mozilla/readability` + `jsdom` (HTML article extraction), `unpdf` (PDF text extraction) — see "HF3: RAG knowledge layer" below.
 
 Local Postgres (docker-compose), matching the course's default stack — see `docs/db-migration-rationale.md` for why the project moved off its earlier SQLite deviation: SQLite has no role-based access control, so the read-only agent connection couldn't be enforced independently of the application code the way it can with a dedicated read-only Postgres role.
 
@@ -38,6 +38,7 @@ smartbasket/
 │   ├── importer/        # Excel download + import pipeline
 │   ├── parser/           # normalizes GVH Excel column names to English snake_case
 │   ├── freshness/        # checkDatasetFreshness / ensureFreshDataset
+│   ├── knowledge/        # HF3 RAG layer: extraction, chunking, embedding, rerank, search, ingest
 │   ├── prompts/
 │   └── logging/          # JSONL run logs
 ├── docs/
@@ -72,6 +73,45 @@ Non-negotiable design rules:
 `import_metadata` (tracks daily import state): `import_date`, `source_url`, `downloaded_at`, `imported_at`, `imported_rows`, `checksum`, `status`.
 
 Data source: GVH Árfigyelő official daily XLSX feed (URL in `docs/brs-smartbasket.md`). No direct web scraping or live API calls happen at question-answering time — only from the locally imported Postgres snapshot.
+
+## HF3: RAG knowledge layer
+
+A second capability alongside price comparison: `searchKnowledge`, a third tool
+(`packages/core/src/lib/knowledge/search/search-knowledge.ts`) wired into the same
+`ask-agent.ts` tool-use loop as `runSql`/`listCategories` — the model decides which
+tool(s) to call per question, including calling both for mixed price+advice questions.
+No separate router component; see `docs/rag-provider-rationale.md` §5 for why.
+
+- **Knowledge base**: NKFH/Nébih/GVH articles and guides on conscious, economical food
+  shopping (planning, unit-price comparison, expiry labels, storage/waste, food safety,
+  consumer rights) — a separate corpus from the price catalog, containing **no** live
+  prices or stock data.
+- **Schema** (`migrations/0002_knowledge_base.sql`): `knowledge_documents` +
+  `knowledge_chunks` (`embedding vector(1024)`, pgvector, no ANN index — brute-force
+  `ORDER BY embedding <=> ...` is faster and more accurate at this corpus size). The RO
+  role only gets `SELECT` on `vw_knowledge_search`, never the raw tables — same pattern
+  as `vw_products`/`vw_best_prices`.
+- **Pipeline** (`knowledge/search/search-knowledge.ts`): HyDE (`claude-haiku-4-5`) →
+  embed (Cohere `embed-v4.0`, `search_query`) → brute-force pgvector top 20 → rerank
+  (Cohere `rerank-v3.5`) → top 5 → relevance-threshold check → grounded chunks or
+  `belowThreshold: true`. Full rationale for every model/provider choice:
+  `docs/rag-provider-rationale.md`.
+- **Ingest** (`knowledge/ingest/`): two-stage, manifest-driven —
+  `data/knowledge/sources.json` lists `{url, title, topic, format?}`;
+  `pnpm knowledge:fetch` downloads to a local cache (`data/knowledge/raw/`, gitignored);
+  `pnpm knowledge:ingest` extracts → chunks → embeds → writes, skipping documents whose
+  content hash is unchanged, and deleting (cascade) documents no longer in the manifest.
+  Maintenance plan (change detection, new/deleted docs, reindex triggers) + diagram:
+  `docs/knowledge-base-architecture.md`.
+- **Chunking** (`knowledge/chunking/chunk-document.ts`): heading-aware (H2/H3 hard
+  boundaries), not fixed-size — rationale and unit-test coverage in
+  `docs/rag-chunking-strategy.md`.
+- **Grounding**: two independent layers, not prompt-only — a deterministic relevance
+  threshold in `searchKnowledge` (returns no chunks + `belowThreshold: true` below it)
+  plus an explicit system-prompt rule requiring source citation and an honest "no
+  answer" instead of fabricating (`docs/system-prompt-improvements.md`, v2 → v3 diff).
+- Config: `COHERE_API_KEY` (`.env.example`), loaded fail-fast via `loadCohereConfig()`,
+  same pattern as `loadAgentConfig()`/`loadDatabaseConfig()`.
 
 ## Conventions (docs/konvenciok.md)
 

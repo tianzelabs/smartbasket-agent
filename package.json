@@ -14,11 +14,15 @@
     "format:check": "prettier --check .",
     "smartbasket": "tsx --env-file-if-exists=.env --conditions=@smartbasket/source apps/cli/src/main.ts",
     "db:migrate": "tsx --env-file-if-exists=.env --conditions=@smartbasket/source scripts/migrate.ts",
-    "db:refresh": "tsx --env-file-if-exists=.env --conditions=@smartbasket/source scripts/refresh.ts"
+    "db:refresh": "tsx --env-file-if-exists=.env --conditions=@smartbasket/source scripts/refresh.ts",
+    "knowledge:fetch": "tsx --env-file-if-exists=.env --conditions=@smartbasket/source scripts/fetch-knowledge.ts",
+    "knowledge:ingest": "tsx --env-file-if-exists=.env --conditions=@smartbasket/source scripts/ingest-knowledge.ts",
+    "knowledge:eval": "tsx --env-file-if-exists=.env --conditions=@smartbasket/source scripts/eval-golden-set.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
     "@smartbasket/core": "workspace:*",
+    "cohere-ai": "^8.0.0",
     "commander": "^15.0.0",
     "pg": "^8.16.3",
     "xlsx": "^0.18.5",
