@@ -31,7 +31,7 @@ kirakati.
 
 - **pgvector** a meglévő Postgres-adatbázisban (`0002_knowledge_base.sql`), nem külön
   vektor-DB - a HF1 már Postgres-re állt (lásd `docs/db-migration-rationale.md`), és a
-  projekt mérete (136 dokumentum, 332 chunk - a "néhány száz - ~1500 chunk" becsült
+  projekt mérete (136 dokumentum, 326 chunk - a "néhány száz - ~1500 chunk" becsült
   sávon belül) messze nem indokol egy külön infrastruktúra-komponenst.
 - **`vector(1024)`**: az `embed-v4.0` alapértelmezett kimenete 1536 dimenzió, de a modell
   Matryoshka-reprezentációt használ, ami lehetővé teszi a csonkolást (256/512/1024/1536)

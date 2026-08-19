@@ -16,12 +16,30 @@ const CONTENT_TAGS = new Set(['H1', 'H2', 'H3', 'H4', 'P', 'LI', 'BLOCKQUOTE']);
 // indexeljünk (docs/rag-chunking-strategy.md).
 const MIN_CONTENT_CHARS = 200;
 
+// A portal.nebih.gov.hu sablon egy "Friss hírek" dobozt fűz az <article> UTÁN,
+// ugyanabba a szülő konténerbe - a Readability ezt néhány (rövidebb törzsű)
+// oldalon tévesen a cikktörzs részének ítéli, és a doboz cikk-címei (pl. egy
+// aktuális állatjárvány-hírről) idegen H2-ként szivárognak be a
+// tudásbázisunkba, teljesen más témájú chunk-ként (lásd docs/golden-set-results.md
+// q9 negatív tesztjének korábbi zajos találatát). Ez oldalsablon-specifikus
+// szemét, nem tartalom - kiszedjük a DOM-ból a Readability előtt.
+const BOILERPLATE_SELECTORS = ['.nebih-article-small', '.news-title-display-page'];
+
+function stripKnownBoilerplate(document: Document): void {
+  for (const selector of BOILERPLATE_SELECTORS) {
+    for (const element of document.querySelectorAll(selector)) {
+      element.remove();
+    }
+  }
+}
+
 // Readability (Firefox Reader Mode ugyanezt használja) kiszedi a navigációt,
 // lábléceket, "kapcsolódó cikkek" dobozokat - csak a cikktörzs HTML-jét adja
 // vissza. Utána azt a törzset járjuk be elem-szinten, hogy megtartsuk a
 // heading-struktúrát a chunkolás számára (docs/rag-chunking-strategy.md).
 export function extractHtmlBlocks(html: string, sourceUrl: string): ExtractedBlock[] {
   const dom = new JSDOM(html, { url: sourceUrl });
+  stripKnownBoilerplate(dom.window.document);
   const reader = new Readability(dom.window.document);
   const article = reader.parse();
 

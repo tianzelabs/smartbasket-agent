@@ -1,8 +1,8 @@
 # Golden set – nyers vektorkeresés vs. teljes pipeline (HF3)
 
-> 10 kérdés a tudásbázis 6 altémájából (2 negatív teszt). Minden kérdés kétféleképp futott: (1) nyers vektorkeresés - csak embedding + pgvector koszinusz-távolság, HyDE és rerank nélkül; (2) a teljes pipeline (`searchKnowledge`) - HyDE (Haiku) + embedding + pgvector + rerank (Cohere rerank-v3.5) + relevancia-küszöb. Éles korpuszon (136 dokumentum, 332 chunk, valós Cohere/Anthropic hívásokkal) generálva.
+> 10 kérdés a tudásbázis 6 altémájából (2 negatív teszt). Minden kérdés kétféleképp futott: (1) nyers vektorkeresés - csak embedding + pgvector koszinusz-távolság, HyDE és rerank nélkül; (2) a teljes pipeline (`searchKnowledge`) - HyDE (Haiku) + embedding + pgvector + rerank (Cohere rerank-v3.5) + relevancia-küszöb. Éles korpuszon (136 dokumentum, 326 chunk, valós Cohere/Anthropic hívásokkal) generálva.
 
-**Összefoglaló:** a(z) 8 összevethető kérdésből **6-nél (75%)** a rerank ténylegesen átrendezte a top találatot (részletek lent és az összesítő táblában) - ez konkrét bizonyíték arra, hogy a rerank lépés érdemi hozzáadott értéket ad a nyers vektorkereséshez képest.
+**Összefoglaló:** a(z) 8 összevethető kérdésből **5-nél (63%)** a rerank ténylegesen átrendezte a top találatot (részletek lent és az összesítő táblában) - ez konkrét bizonyíték arra, hogy a rerank lépés érdemi hozzáadott értéket ad a nyers vektorkereséshez képest.
 
 | # | Kérdés | Nyers top-1 | Teljes pipeline top-1 | Átrendezve? |
 |---|---|---|---|---|
@@ -12,9 +12,9 @@
 | q4-bevasarlolista | Hogyan érdemes bevásárlólistát készíteni egy kétszemélyes háztartásnak? | Élelmiszer-tartalékolási útmutató (teljes kiadvány) | Bevásárlás maradék nélkül: így csökkentsd az otthoni pazarlást már a boltban | **IGEN** |
 | q5-huto-homerseklet | Milyen hőmérsékleten érdemes tartani a hűtőszekrényt? | Apró lépésekkel az élelmiszerpazarlás csökkentéséért! | „A hűtő mindenre megoldás” – vagy mégsem? | **IGEN** |
 | q6-nagy-kiszereles | Mindig gazdaságosabb a nagyobb kiszerelés? | A felnőtté válás küszöbén: tippek a pazarlásmentes konyhai szokások kialakításához | Bevásárlás maradék nélkül: így csökkentsd az otthoni pazarlást már a boltban | **IGEN** |
-| q7-lejart-termek-jogok | Mit tehetek, ha lejárt terméket vásároltam? | Mit árul el a dátum? – Fogyasztói tudatosság a lejárt élelmiszerekkel kapcsolatban | Vásároljunk okosan! – Kérdések és válaszok | **IGEN** |
+| q7-lejart-termek-jogok | Mit tehetek, ha lejárt terméket vásároltam? | Mit árul el a dátum? – Fogyasztói tudatosság a lejárt élelmiszerekkel kapcsolatban | Mit árul el a dátum? – Fogyasztói tudatosság a lejárt élelmiszerekkel kapcsolatban | Nem |
 | q8-akcio-tisztesseges | Honnan tudom, hogy egy áruházlánc akciója valóban tisztességes, nem csak látszatkedvezmény? | Áruházláncok akciótartási gyakorlata | Áruházláncok akciótartási gyakorlata | Nem |
-| q9-keszlet-negativ (negatív) | Van jelenleg készleten zabtej a Váci úti Aldiban? | Kapszulakamrával az élelmiszerpazarlás ellen – A Nébih Maradék nélkül program tanácsai > Újabb Baranya vármegyei házisertés-állományban jelent meg az afrikai sertéspestis | _belowThreshold_ | n/a |
+| q9-keszlet-negativ (negatív) | Van jelenleg készleten zabtej a Váci úti Aldiban? | Új kiadványok segítik az internetes élelmiszervásárlást és a biztonságos étrend-kiegészítő fogyasztást > Új kiadványok segítik az internetes élelmiszervásárlást és a biztonságos étrend-kiegészítő fogyasztást | _belowThreshold_ | n/a |
 | q10-nutriscore-negativ (negatív) | Mit jelent a Nutri-Score besorolás és hogyan számolják ki? | Vásároljunk okosan! – Kérdések és válaszok | _belowThreshold_ | n/a |
 
 ---
@@ -53,15 +53,15 @@
 2. Hogyan ismerjük fel a megtévesztő akciókat? Avagy mit jelent valójában a „-70%” kedvezmény?
 3. Tovább csökkent a pazarlás a magyar háztartásokban > 2016 óta követjük nyomon a magyar háztartásokban keletkező élelmiszerhulladék mennyiségét. A 2025-ös felmérés eredményei szerint tovább erősödött a kedvező tendencia: az elkerülhető élelmiszerhulladék, vagyis az élelmiszerpazarlás mértéke az elmúlt kilenc évben 37,2%-kal csökkent. Az otthoni pazarlás hátterében továbbra is ugyanazok a mindennapi hibák állnak: a túlvásárlás, a túlzott főzés és a megfeledkezett élelmiszerek.
 4. Maradék nélkül: így lehet pazarlásmentes a karácsony > Maradék nélkül: így lehet pazarlásmentes a karácsony
-5. Élelmiszer-tartalékolási útmutató (teljes kiadvány)
+5. Áruházláncok akciótartási gyakorlata
 
 **Teljes pipeline (HyDE + rerank), top 5:**
 
 1. Apró lépésekkel az élelmiszerpazarlás csökkentéséért! (relevanceScore: 0.693)
 2. Bevásárlás maradék nélkül: így csökkentsd az otthoni pazarlást már a boltban (relevanceScore: 0.559)
 3. Mit árul el a dátum? – Fogyasztói tudatosság a lejárt élelmiszerekkel kapcsolatban (relevanceScore: 0.489)
-4. A fogyasztói társadalom kihívásai és a tudatos vásárló szerepe (relevanceScore: 0.288)
-5. A felnőtté válás küszöbén: tippek a pazarlásmentes konyhai szokások kialakításához (relevanceScore: 0.282)
+4. Hogyan ismerjük fel a megtévesztő akciókat? Avagy mit jelent valójában a „-70%” kedvezmény? (relevanceScore: 0.282)
+5. Élelmiszer-tartalékolási útmutató (teljes kiadvány) (relevanceScore: 0.268)
 
 **Rerank átrendezett-e?** **IGEN** - az 1. helyen szereplő chunk megváltozott.
 
@@ -105,10 +105,10 @@
 
 **Teljes pipeline (HyDE + rerank), top 5:**
 
-1. Bevásárlás maradék nélkül: így csökkentsd az otthoni pazarlást már a boltban (relevanceScore: 0.742)
+1. Bevásárlás maradék nélkül: így csökkentsd az otthoni pazarlást már a boltban (relevanceScore: 0.741)
 2. Élelmiszer-tartalékolási útmutató (teljes kiadvány) (relevanceScore: 0.695)
 3. Sietős hétköznapok maradék nélkül (relevanceScore: 0.632)
-4. Vásároljunk okosan! – Kérdések és válaszok (relevanceScore: 0.542)
+4. Vásároljunk okosan! – Kérdések és válaszok (relevanceScore: 0.541)
 5. Élelmiszer-tartalékolási útmutató (teljes kiadvány) (relevanceScore: 0.501)
 
 **Rerank átrendezett-e?** **IGEN** - az 1. helyen szereplő chunk megváltozott.
@@ -132,7 +132,7 @@
 1. „A hűtő mindenre megoldás” – vagy mégsem? (relevanceScore: 0.882)
 2. Apró lépésekkel az élelmiszerpazarlás csökkentéséért! (relevanceScore: 0.871)
 3. Hűtőútmutató (relevanceScore: 0.854)
-4. Hőség és fokozott villamosenergia-terhelés: így őrizhetjük meg az élelmiszerek biztonságát (relevanceScore: 0.800)
+4. Hőség és fokozott villamosenergia-terhelés: így őrizhetjük meg az élelmiszerek biztonságát (relevanceScore: 0.799)
 5. Hűtőútmutató (relevanceScore: 0.796)
 
 **Rerank átrendezett-e?** **IGEN** - az 1. helyen szereplő chunk megváltozott.
@@ -155,9 +155,9 @@
 
 1. Bevásárlás maradék nélkül: így csökkentsd az otthoni pazarlást már a boltban (relevanceScore: 0.849)
 2. A felnőtté válás küszöbén: tippek a pazarlásmentes konyhai szokások kialakításához (relevanceScore: 0.643)
-3. Apró lépésekkel az élelmiszerpazarlás csökkentéséért! (relevanceScore: 0.258)
-4. Mire figyeljünk élelmiszer-vásárlás során? (relevanceScore: 0.166)
-5. Vásároljunk okosan! – Kérdések és válaszok (relevanceScore: 0.123)
+3. Jobb, mint a „hagyományos”? (relevanceScore: 0.275)
+4. Apró lépésekkel az élelmiszerpazarlás csökkentéséért! (relevanceScore: 0.258)
+5. Adagkalkulátor (relevanceScore: 0.132)
 
 **Rerank átrendezett-e?** **IGEN** - az 1. helyen szereplő chunk megváltozott.
 
@@ -177,13 +177,13 @@
 
 **Teljes pipeline (HyDE + rerank), top 5:**
 
-1. Vásároljunk okosan! – Kérdések és válaszok (relevanceScore: 0.802)
-2. Mit árul el a dátum? – Fogyasztói tudatosság a lejárt élelmiszerekkel kapcsolatban (relevanceScore: 0.798)
-3. Mit árul el a dátum? – Fogyasztói tudatosság a lejárt élelmiszerekkel kapcsolatban (relevanceScore: 0.736)
-4. Vásároljunk okosan! – Kérdések és válaszok (relevanceScore: 0.639)
-5. Mire figyeljünk élelmiszer-vásárlás során? (relevanceScore: 0.616)
+1. Mit árul el a dátum? – Fogyasztói tudatosság a lejárt élelmiszerekkel kapcsolatban (relevanceScore: 0.798)
+2. Mit árul el a dátum? – Fogyasztói tudatosság a lejárt élelmiszerekkel kapcsolatban (relevanceScore: 0.736)
+3. Lejárt élelmiszer? Adhatsz neki egy esélyt! (relevanceScore: 0.697)
+4. Újabb termékekkel bővült népszerű lejárati útmutatónk (relevanceScore: 0.658)
+5. Bevásárlás maradék nélkül: így csökkentsd az otthoni pazarlást már a boltban (relevanceScore: 0.652)
 
-**Rerank átrendezett-e?** **IGEN** - az 1. helyen szereplő chunk megváltozott.
+**Rerank átrendezett-e?** Nem - az 1. helyen ugyanaz a chunk maradt.
 
 ---
 
@@ -219,11 +219,11 @@
 
 **Nyers vektorkeresés (embedding + távolság, HyDE/rerank nélkül), top 5:**
 
-1. Kapszulakamrával az élelmiszerpazarlás ellen – A Nébih Maradék nélkül program tanácsai > Újabb Baranya vármegyei házisertés-állományban jelent meg az afrikai sertéspestis
-2. Maradék nélkül: így lehet pazarlásmentes a karácsony > Újabb Baranya vármegyei házisertés-állományban jelent meg az afrikai sertéspestis
-3. Ünnepi menütervezés könnyedén a Nébih Maradék nélkül adagkalkulátorával > Újabb Baranya vármegyei házisertés-állományban jelent meg az afrikai sertéspestis
-4. Új kiadványok segítik az internetes élelmiszervásárlást és a biztonságos étrend-kiegészítő fogyasztást > Új kiadványok segítik az internetes élelmiszervásárlást és a biztonságos étrend-kiegészítő fogyasztást
-5. Termékvisszahívás - ALDI Baromfivirsli csirkemellel 280 g tej allergén (sajt) jelenléte miatt
+1. Új kiadványok segítik az internetes élelmiszervásárlást és a biztonságos étrend-kiegészítő fogyasztást > Új kiadványok segítik az internetes élelmiszervásárlást és a biztonságos étrend-kiegészítő fogyasztást
+2. Termékvisszahívás - ALDI Baromfivirsli csirkemellel 280 g tej allergén (sajt) jelenléte miatt
+3. Élelmiszer-tartalékolási útmutató (teljes kiadvány)
+4. Vásároljunk okosan! – Kérdések és válaszok
+5. Bevásárlás maradék nélkül: így csökkentsd az otthoni pazarlást már a boltban
 
 **Teljes pipeline (HyDE + rerank), top 5:**
 
@@ -267,7 +267,7 @@ tartalmi illeszkedését nézve javította ezt - nem csak a vektortér-közelsé
 (A további átrendezett kérdéseket lásd az összesítő táblában és az egyes
 szekciókban fent.)
 
-## Miért nem rendezett át semmit 2 kérdésnél (q1-datum-cimke, q8-akcio-tisztesseges)
+## Miért nem rendezett át semmit 3 kérdésnél (q1-datum-cimke, q7-lejart-termek-jogok, q8-akcio-tisztesseges)
 
 Ezeknél a kérdéseknél a nyers keresés 1. helyezettje és a teljes pipeline 1.
 helyezettje megegyezett. Ennek oka feltehetően az, hogy a legjobban illeszkedő

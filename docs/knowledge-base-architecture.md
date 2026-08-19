@@ -51,6 +51,28 @@ Ez determinisztikus, kódban ellenőrzött logika - nem az LLM dönti el, hogy e
 "változott-e" (ugyanaz a tervezési elv, mint a HF1 `checkDatasetFreshness()`-nél:
 `konvenciok.md` 12. pont).
 
+**Ismert korlát (nem elméleti, ténylegesen belefutottunk):** a hash kizárólag a **forrás
+nyers bájtjaira** épül, nem a mi kinyerő/chunkoló/embedding kódunkra. Ha a forrás oldal nem
+változik, de MI módosítunk valamit a pipeline-ban (pl. az `extractHtmlBlocks()` boilerplate-
+szűrőjén, a chunkolási szabályokon, vagy lecseréljük az embedding modellt), a hash-alapú
+"skipped-unchanged" ág ezt nem érzékeli - a már betöltött dokumentum a régi (esetleg hibás)
+kinyeréssel/embeddinggel marad a DB-ben, amíg valaki nem kényszerít egy újra-ingestet.
+Ez pontosan így fordult elő: a portal.nebih.gov.hu sablon egy "Friss hírek" dobozt fűz az
+`<article>` mellé, amit a Readability néhány oldalon (`Kapszulakamrával...`, `Ünnepi
+menütervezés...`, `Maradék nélkül: karácsony`) tévesen a cikktörzs részének ítélt - egy
+teljesen más témájú (állatjárvány-hír) H2 szivárgott be idegen chunk-ként. Az
+`extractHtmlBlocks()` javítása (`BOILERPLATE_SELECTORS`) után a 3 érintett dokumentumot
+kézzel kellett törölni a `knowledge_documents` táblából (`DELETE ... WHERE source_url = ANY(...)`),
+hogy a következő `pnpm knowledge:ingest` új sorként, a javított kóddal dolgozza fel őket -
+maga a forrás HTML nem változott, a hash-ük ugyanaz maradt volna.
+**Következtetés a karbantartási tervhez**: pipeline-kód (extraction/chunking/embedding-modell)
+módosítása esetén a hash-ellenőrzés nem elég - vagy célzottan törölni kell az érintett
+dokumentum(ok) sorát ingest előtt, vagy (nagyobb, széles hatókörű kódváltozásnál, pl.
+embedding-modell csere) a teljes `knowledge_documents` táblát ürítve teljes rebuildet kell
+futtatni. Ez explicit emberi döntés kell legyen (kód-review/deploy checklist tétel), nem
+automatizált - az automatikus verzió (pl. a pipeline-kód hash-ét is figyelembe venni a
+content_hash mellett) jövőbeli irány, jelenleg nincs implementálva.
+
 ## 3. Mi történik az új dokumentummal?
 
 Új sor a `sources.json`-ban → `pnpm knowledge:fetch` letölti → `pnpm knowledge:ingest`
