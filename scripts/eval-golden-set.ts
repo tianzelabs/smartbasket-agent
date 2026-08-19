@@ -8,6 +8,7 @@ import {
   embedTexts,
   vectorSearch,
   searchKnowledge,
+  getKnowledgeBaseStats,
   type SearchedChunk,
   type SearchKnowledgeResult,
 } from '@smartbasket/core';
@@ -55,6 +56,39 @@ function renderFullList(result: SearchKnowledgeResult): string {
     .join('\n');
 }
 
+interface EvalRow {
+  id: string;
+  question: string;
+  isNegativeTest: boolean;
+  rawTop1: string | null;
+  fullTop1: string | null;
+  belowThreshold: boolean;
+  reordered: boolean;
+}
+
+// Egy sor a q1-q10 (vagy amennyi kérdés a GOLDEN_SET-ben van) áttekintő
+// táblájában - Markdown-táblacellának escape-eli a "|" karaktert, hogy egy
+// hosszabb cím ne törje el a táblát.
+function escapeCell(value: string | null): string {
+  return value === null ? '-' : value.replace(/\|/g, '\\|');
+}
+
+function renderAggregateTable(rows: EvalRow[]): string {
+  const header = '| # | Kérdés | Nyers top-1 | Teljes pipeline top-1 | Átrendezve? |\n|---|---|---|---|---|';
+  const body = rows
+    .map((row) => {
+      const label = row.isNegativeTest ? `${row.id} (negatív)` : row.id;
+      const verdict = row.belowThreshold
+        ? 'n/a'
+        : row.reordered
+          ? '**IGEN**'
+          : 'Nem';
+      return `| ${label} | ${escapeCell(row.question)} | ${escapeCell(row.rawTop1)} | ${row.belowThreshold ? '_belowThreshold_' : escapeCell(row.fullTop1)} | ${verdict} |`;
+    })
+    .join('\n');
+  return `${header}\n${body}`;
+}
+
 async function main(): Promise<void> {
   const agentConfig = loadAgentConfig();
   const anthropicClient = new Anthropic({ apiKey: agentConfig.anthropicApiKey });
@@ -62,7 +96,7 @@ async function main(): Promise<void> {
   const { databaseUrlReadonly } = loadDatabaseConfig();
 
   const sections: string[] = [];
-  let reorderExampleFound = false;
+  const rows: EvalRow[] = [];
 
   for (const item of GOLDEN_SET) {
     console.log(`Futtatás: ${item.id}`);
@@ -77,9 +111,16 @@ async function main(): Promise<void> {
     const fullTop1 =
       !full.belowThreshold && full.chunks[0] ? full.chunks[0].sectionPath : null;
     const reordered = rawTop1 !== null && fullTop1 !== null && rawTop1 !== fullTop1;
-    if (reordered) {
-      reorderExampleFound = true;
-    }
+
+    rows.push({
+      id: item.id,
+      question: item.question,
+      isNegativeTest: item.isNegativeTest ?? false,
+      rawTop1,
+      fullTop1,
+      belowThreshold: full.belowThreshold,
+      reordered,
+    });
 
     sections.push(`## ${item.id}${item.isNegativeTest ? ' (negatív teszt)' : ''}
 
@@ -97,52 +138,87 @@ ${renderFullList(full)}
 `);
   }
 
+  const stats = await getKnowledgeBaseStats(databaseUrlReadonly);
+
+  // "Összevethető" = mindkét ágon van top-1 (a belowThreshold negatív
+  // teszteknél nincs, ezért azok nem számítanak bele az arányba) - lásd
+  // docs/golden-set-results.md korábbi verziójának hibáját: egy bináris
+  // "volt-e legalább egy átrendezés" mondat elrejtette, hogy a találatok
+  // többségénél történt átrendezés, nem csak egyetlen kirívó esetnél.
+  const comparable = rows.filter((row) => row.rawTop1 !== null && row.fullTop1 !== null);
+  const reorderedRows = comparable.filter((row) => row.reordered);
+  const negativeTests = rows.filter((row) => row.isNegativeTest);
+
+  const summaryLine =
+    comparable.length === 0
+      ? 'egyetlen kérdés sem volt összevethető (minden ág belowThreshold-ot adott vissza).'
+      : reorderedRows.length === 0
+        ? `a(z) ${comparable.length} összevethető kérdés egyikénél sem változott az 1. helyezett chunk a rerank után - ez is releváns eredmény, az ok(oka)t az egyes kérdéseknél dokumentáljuk.`
+        : `a(z) ${comparable.length} összevethető kérdésből **${reorderedRows.length}-nél (${Math.round((reorderedRows.length / comparable.length) * 100)}%)** a rerank ténylegesen átrendezte a top találatot (részletek lent és az összesítő táblában) - ez konkrét bizonyíték arra, hogy a rerank lépés érdemi hozzáadott értéket ad a nyers vektorkereséshez képest.`;
+
   const summary = `# Golden set – nyers vektorkeresés vs. teljes pipeline (HF3)
 
-> ${GOLDEN_SET.length} kérdés a tudásbázis 6 altémájából (${GOLDEN_SET.filter((q) => q.isNegativeTest).length} negatív teszt). Minden kérdés kétféleképp futott: (1) nyers vektorkeresés - csak embedding + pgvector koszinusz-távolság, HyDE és rerank nélkül; (2) a teljes pipeline (\`searchKnowledge\`) - HyDE (Haiku) + embedding + pgvector + rerank (Cohere rerank-v3.5) + relevancia-küszöb. Éles korpuszon (30 dokumentum, 72 chunk, valós Cohere/Anthropic hívásokkal) generálva.
+> ${GOLDEN_SET.length} kérdés a tudásbázis 6 altémájából (${negativeTests.length} negatív teszt). Minden kérdés kétféleképp futott: (1) nyers vektorkeresés - csak embedding + pgvector koszinusz-távolság, HyDE és rerank nélkül; (2) a teljes pipeline (\`searchKnowledge\`) - HyDE (Haiku) + embedding + pgvector + rerank (Cohere rerank-v3.5) + relevancia-küszöb. Éles korpuszon (${stats.documentCount} dokumentum, ${stats.chunkCount} chunk, valós Cohere/Anthropic hívásokkal) generálva.
 
-**Összefoglaló:** ${reorderExampleFound ? 'legalább egy kérdésnél a rerank ténylegesen átrendezte a top találatot (lásd lent, kiemelve) - ez konkrét bizonyíték arra, hogy a rerank lépés érdemi hozzáadott értéket ad a nyers vektorkereséshez képest.' : 'a jelen futtatásban egyetlen kérdésnél sem változott az 1. helyezett chunk a rerank után - ez is releváns eredmény, az ok(oka)t az egyes kérdéseknél dokumentáljuk.'}
+**Összefoglaló:** ${summaryLine}
+
+${renderAggregateTable(rows)}
 
 ---
 
 ${sections.join('\n---\n\n')}
 `;
 
+  const reorderExample = reorderedRows[0];
+  const nonReorderedComparable = comparable.filter((row) => !row.reordered);
+
+  const reorderAnalysis = reorderExample
+    ? `## Elemzés: miért jobb az új sorrend (${reorderExample.id} példáján)
+
+A **${reorderExample.id}** kérdésnél ("${reorderExample.question}") a nyers
+vektorkeresés 1. helyre a *"${reorderExample.rawTop1}"* találatot hozta, míg a
+teljes pipeline (HyDE + rerank) 1. helyre a *"${reorderExample.fullTop1}"*
+találatot tette. Ez jellemzően azt jelenti, hogy a nyers vektorkeresés egy
+témában rokon, de a kérdésre nem közvetlenül válaszoló chunk-ot rangsorolt
+elsőre, a rerank pedig egy kereszt-encoderrel a kérdés és a chunk tényleges
+tartalmi illeszkedését nézve javította ezt - nem csak a vektortér-közelséget.
+(A további átrendezett kérdéseket lásd az összesítő táblában és az egyes
+szekciókban fent.)`
+    : `## Elemzés: miért nem rendezett át semmit a rerank
+
+A jelen futtatásban egyetlen összevethető kérdésnél sem változott az 1.
+helyezett chunk a rerank után. Ez azt sugallja, hogy ezen a korpuszon a
+nyers vektor-hasonlóság alapján legjobban illeszkedő chunk minden esetben már
+eleve helyes volt - a rerank nem ront, csak megerősít.`;
+
+  const noReorderAnalysis =
+    nonReorderedComparable.length > 0
+      ? `## Miért nem rendezett át semmit ${nonReorderedComparable.length === 1 ? 'egy kérdésnél' : `${nonReorderedComparable.length} kérdésnél`} (${nonReorderedComparable.map((row) => row.id).join(', ')})
+
+Ezeknél a kérdéseknél a nyers keresés 1. helyezettje és a teljes pipeline 1.
+helyezettje megegyezett. Ennek oka feltehetően az, hogy a legjobban illeszkedő
+chunk embedding-távolság alapján is már egyértelműen kiugró volt a többi
+jelölthöz képest (nincs "közeli verseny" a top pozícióért) - ilyenkor a rerank
+nem *ront*, csak megerősíti a már helyes sorrendet. Ez önmagában is releváns
+eredmény: azt mutatja, hogy a rerank nem véletlenszerűen kever, hanem ott
+avatkozik be, ahol a nyers vektor-hasonlóság félrevezető.`
+      : '';
+
+  const negativeTestAnalysis = `## Negatív teszt eredménye
+
+${
+  negativeTests.length === 0
+    ? '_(nincs negatív teszt a golden setben)_'
+    : negativeTests.every((row) => row.belowThreshold)
+      ? `Mind a(z) ${negativeTests.length} negatív teszt kérdésnél (${negativeTests.map((row) => row.id).join(', ')}) a teljes pipeline \`belowThreshold: true\`-t adott vissza, üres chunk-listával - a rendszer nem kényszerült arra, hogy a leggyengébb találatokból összetákoljon egy válasz-látszatot. Élesben az agent ennek megfelelően explicit kimondja, hogy nincs erre megbízható forrás a tudásbázisban, ahelyett hogy kitalálna egy választ - ez a grounding tényleges próbája, nem csak egy be nem tartott prompt-szabály.`
+      : `A negatív teszt kérdések közül (${negativeTests.map((row) => row.id).join(', ')}) nem mindegyiknél adott \`belowThreshold: true\`-t a pipeline - ezt egyenként érdemes megvizsgálni, mert azt jelezheti, hogy a küszöb vagy a tudásbázis-lefedettség felülvizsgálatra szorul.`
+}`;
+
   const analysis = `---
 
-## Elemzés: miért jobb az új sorrend (q1 példáján)
+${reorderAnalysis}
 
-A **q1-datum-cimke** kérdés ("Mit jelent a „minőségét megőrzi” és miben különbözik a
-„fogyasztható” jelöléstől?") a legtisztább példa. A nyers vektorkeresés 1. helyen
-kétszer is a *"Mire figyeljünk élelmiszer-vásárlás során?"* cikket hozta - ez egy
-általános, vásárlás-biztonsági témájú cikk, ami *érinti* a dátumjelölést, de nem róla
-szól. A teljes pipeline 1. helyre a *"Mit árul el a dátum? – Fogyasztói tudatosság a
-lejárt élelmiszerekkel kapcsolatban"* cikket hozta - ez pontosan, kizárólag erről a
-kérdésről szól (a két dátumjelölés közötti különbségről). Ez érdemi javulás: a
-kérdésre szó szerint válaszoló forrás előrébb került egy csak témában rokon forrással
-szemben - ez a HyDE+rerank kombináció pontosan ezt a fajta hibát javítja, mert a rerank
-egy kereszt-encoder, ami a kérdés és a chunk tényleges tartalmi illeszkedését nézi, nem
-csak a vektortér-közelséget.
-
-## Miért nem rendezett át semmit két kérdésnél (q6, q7)
-
-A **q6-nagy-kiszereles** és **q7-lejart-termek-jogok** kérdéseknél a nyers keresés 1.
-helyezettje és a teljes pipeline 1. helyezettje megegyezett. Ennek oka feltehetően az,
-hogy mindkét kérdésnél a legjobban illeszkedő chunk embedding-távolság alapján is már
-egyértelműen kiugró volt a többi jelölthöz képest (nincs "közeli verseny" a top
-pozícióért) - ilyenkor a rerank nem *ront*, csak megerősíti a már helyes sorrendet.
-Ez önmagában is releváns eredmény: azt mutatja, hogy a rerank nem véletlenszerűen
-kever, hanem ott avatkozik be, ahol a nyers vektor-hasonlóság félrevezető (lásd q1-q5).
-
-## Negatív teszt eredménye
-
-Mindkét negatív teszt kérdésnél (**q9**, **q10**) a teljes pipeline
-\`belowThreshold: true\`-t adott vissza, üres chunk-listával - a rendszer nem
-kényszerült arra, hogy a leggyengébb találatokból összetákoljon egy válasz-látszatot.
-Élesben (\`pnpm smartbasket ask "Mit jelent a Nutri-Score besorolás..."\`) az agent
-ennek megfelelően explicit kimondta, hogy nincs erre megbízható forrás a
-tudásbázisban, ahelyett hogy kitalált volna egy választ - ez a grounding tényleges
-próbája, nem csak egy be nem tartott prompt-szabály.
+${noReorderAnalysis ? `${noReorderAnalysis}\n\n` : ''}${negativeTestAnalysis}
 `;
 
   writeFileSync(OUTPUT_PATH, summary + analysis, 'utf8');

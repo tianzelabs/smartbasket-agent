@@ -31,6 +31,7 @@ export * from './lib/knowledge/embedding/embed-texts.js';
 export * from './lib/knowledge/rerank/rerank-items.js';
 export * from './lib/knowledge/search/hyde.js';
 export * from './lib/knowledge/search/vector-search.js';
+export * from './lib/knowledge/search/knowledge-base-stats.js';
 export * from './lib/knowledge/search/search-knowledge.js';
 export * from './lib/knowledge/ingest/content-hash.js';
 export * from './lib/knowledge/ingest/source-manifest.js';

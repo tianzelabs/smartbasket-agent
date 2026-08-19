@@ -65,7 +65,7 @@ A rendszer szándékosan **nem talál ki adatot**: ha nincs a kérdésre relevá
 
 ## Tudatos vásárlási tanácsadás (RAG, HF3)
 
-Egy második tudásforrás: NKFH/Nébih/GVH cikkek és útmutatók a tudatos, gazdaságos élelmiszer-vásárlásról (30 dokumentum, ~15 700 szó, 72 chunk) - **nem** aznapi árak, azokra továbbra is a fenti SQL-katalógus a forrás. A `searchKnowledge` egy harmadik tool a meglévő agent-loopban (`runSql`/`listCategories` mellett) - a modell dönti el, melyiket (vagy melyiket együtt) hívja.
+Egy második tudásforrás: NKFH/Nébih/GVH cikkek és útmutatók a tudatos, gazdaságos élelmiszer-vásárlásról (136 dokumentum, ~81 100 szó, 332 chunk) - **nem** aznapi árak, azokra továbbra is a fenti SQL-katalógus a forrás. A `searchKnowledge` egy harmadik tool a meglévő agent-loopban (`runSql`/`listCategories` mellett) - a modell dönti el, melyiket (vagy melyiket együtt) hívja.
 
 ```bash
 pnpm smartbasket ask "Milyen hőmérsékleten érdemes tartani a hűtőszekrényt?"
@@ -112,7 +112,7 @@ Minden döntés (chunkolás, provider-szereposztás, routing, tudásbázis-karba
 
 Saját számokból (2026-07, Anthropic bevezető ár 2026-08-31-ig: Sonnet 5 $2/$10 per MTok input/output, utána $3/$15; Haiku 4.5 $1/$5; Cohere embed-v4.0 $0,12/1M token; Cohere rerank-v3.5 $2/1000 keresés):
 
-- **Teljes tudásbázis vektorizálása (ingest, egyszeri):** 72 chunk, összesen kb. 36 000 token embeddelve → **jóval 1 cent alatt** ($0,12/1M token × 0,036M ≈ $0,004). Elhanyagolható, mert a korpusz kicsi és a hash-alapú inkrementális ingest miatt ez csak új/változott dokumentumoknál fut le újra.
+- **Teljes tudásbázis vektorizálása (ingest, egyszeri):** 332 chunk, összesen kb. 186 000 token embeddelve → **kb. 2 cent** ($0,12/1M token × 0,186M ≈ $0,022). Továbbra is elhanyagolható, és a hash-alapú inkrementális ingest miatt ez csak új/változott dokumentumoknál fut le újra - a korpusz 30→136 dokumentumra bővítésekor is csak az új ~106 dokumentum embeddelődött újra, a változatlan 30 kimaradt.
 - **Egy kérdés a teljes pipeline-nal** (HyDE-hívás + embedding + rerank + végső válasz):
   - HyDE (Haiku, ~220 token be / ~200 token ki): ~$0,001
   - Query embedding (Cohere, ~200 token): ~$0,00002 (elhanyagolható)

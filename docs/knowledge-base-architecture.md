@@ -92,7 +92,7 @@ pnpm knowledge:fetch    # újra letölti a manifest összes forrását
 pnpm knowledge:ingest   # hash alapján csak a ténylegesen változottakat dolgozza fel
 ```
 
-Ez a HF3 house-keeping léptékéhez (25-30 dokumentum, ritkán változó hivatalos
+Ez a HF3 house-keeping léptékéhez (136 dokumentum, ritkán változó hivatalos
 tájékoztató anyag) arányos - egy automatikus, gyakori újraindexelés ehhez a
 frissülési ütemhez nem indokolt komplexitás-növelés.
 

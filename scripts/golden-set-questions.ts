@@ -59,6 +59,6 @@ export const GOLDEN_SET: GoldenSetQuestion[] = [
     id: 'q10-nutriscore-negativ',
     question: 'Mit jelent a Nutri-Score besorolás és hogyan számolják ki?',
     isNegativeTest: true,
-    note: 'A 30 dokumentumos korpusz egyike sem tárgyalja a Nutri-Score módszertanát - a tudásbázisban nincs erre megbízható forrás.',
+    note: 'A korpusz egyike sem tárgyalja a Nutri-Score módszertanát - a tudásbázisban nincs erre megbízható forrás.',
   },
 ];

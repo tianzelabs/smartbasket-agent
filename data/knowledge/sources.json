@@ -152,5 +152,537 @@
     "url": "https://nkfh.gov.hu/hasznos/elelmiszer-kereskedelem/kiszerelescsokkentes-tajekoztato",
     "title": "Kiszereléscsökkentés – tájékoztató",
     "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/hatosagi-feladatok-es-koetelezettsegek-az-elelmiszer-visszahivasok-terueleten-1",
+    "title": "Hatósági feladatok és kötelezettségek az élelmiszer-visszahívások területén",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/tavaszi-elelmiszer-biztonsagi-es-higieniai-ellenorzesek-vendeglatohelyeket-es-nepszeru-termekeket-ellenorzoett-az-nkfh-1",
+    "title": "Tavaszi élelmiszer-biztonsági és higiéniai ellenőrzések – vendéglátóhelyeket és népszerű termékeket ellenőrzött az NKFH",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/sulyos-higieniai-es-elelmiszer-biztonsagi-hianyossag-harom-budapesti-bevasarlokoezpontban",
+    "title": "Súlyos higiéniai és élelmiszer-biztonsági hiányosság három budapesti bevásárlóközpontban",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/orszagos-gyrosellenorzes-350-buefe-es-etterem-vizsgalata-85-eljaras-25-bezart-egyseg-1300-kg-forgalombol-kivont-elelmiszer",
+    "title": "Országos gyrosellenőrzés: 350 büfé és étterem vizsgálata, 85 eljárás, 25 bezárt egység, 1300 kg forgalomból kivont élelmiszer",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/a-fogyasztoi-tarsadalom-kihivasai-es-a-tudatos-vasarlo-szerepe-1",
+    "title": "A fogyasztói társadalom kihívásai és a tudatos vásárló szerepe",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/a-webaruhazak-arfeltuentetesi-gyakorlatait-vizsgalta-a-gvh-es-az-nkfh",
+    "title": "A webáruházak árfeltüntetési gyakorlatait vizsgálta a GVH és az NKFH",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/altalanos-fogyasztoi-kosar-ellenorzes-az-akcios-arak-toebbsege-megfelelt-a-szabalyoknak",
+    "title": "Általános fogyasztói kosár ellenőrzés: az akciós árak többsége megfelelt a szabályoknak",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/hogyan-ismerjuek-fel-a-megteveszto-akciokat-avagy-mit-jelent-valojaban-a-70-kedvezmeny",
+    "title": "Hogyan ismerjük fel a megtévesztő akciókat? Avagy mit jelent valójában a „-70%” kedvezmény?",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/husveti-bevasarlokalauz-mire-figyeljuenk-az-uennepi-keszuelodesben",
+    "title": "Húsvéti bevásárlókalauz – mire figyeljünk az ünnepi készülődésben?",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/tudnivalok-az-etrend-kiegeszitok-online-vasarlasa-elott-es-utan",
+    "title": "Tudnivalók az étrend-kiegészítők online vásárlása előtt és után",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/tajekoztatas-hipp-bebietelekkel-kapcsolatos-vizsgalatrol-1",
+    "title": "Tájékoztatás HIPP bébiételekkel kapcsolatos vizsgálatról",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/a-ferfiegeszseg-tamogato-etrend-kiegeszito-keszitmenyek",
+    "title": "A férfiegészség támogató étrend-kiegészítő készítmények",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/uj-funkciokkal-bovuelt-a-nemzeti-kereskedelmi-es-fogyasztovedelmi-hatosag-honlapja-egyszerubb-uegyintezes-vallalkozasoknak-hatekonyabb-bejelentes-a-fogyasztoknak",
+    "title": "Új funkciókkal bővült a Nemzeti Kereskedelmi és Fogyasztóvédelmi Hatóság honlapja – egyszerűbb ügyintézés vállalkozásoknak, hatékonyabb bejelentés a fogyasztóknak",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/itt-a-2030-ig-tarto-idoszakra-vonatkozo-fogyasztouegyi-menetrend",
+    "title": "Itt a 2030-ig tartó időszakra vonatkozó fogyasztóügyi menetrend",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/igy-valtoztak-a-koetelezo-jotallas-szabalyai",
+    "title": "Így változtak a kötelező jótállás szabályai",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/chargeback-hogyan-szerezhetjuek-vissza-a-penzuenket-online-vasarlas-eseten-1",
+    "title": "Chargeback – hogyan szerezhetjük vissza a pénzünket online vásárlás esetén?",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hasznos/arfeltuentetes-akciok/arfeltuentetes-akciok",
+    "title": "Árfeltüntetés, akciók",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hasznos/arfeltuentetes-akciok/visszavaltasi-dij-drs",
+    "title": "Visszaváltási díj",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hasznos/reklam/reklamok",
+    "title": "Reklámok",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hasznos/szavatossag-jotallas/szavatossag-jotallas",
+    "title": "Szavatosság, jótállás",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hasznos/tisztessegtelen-kereskedelmi-gyakorlatok-a-fogyasztokkal-szemben/useful-article-1",
+    "title": "Tisztességtelen kereskedelmi gyakorlatok",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/termekvisszahivas-auchan-voeroeshagymas-sertes-tepertokrem-szalmonella-miatt",
+    "title": "Termékvisszahívás - Auchan vöröshagymás sertés tepertőkrém szalmonella miatt",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/cseszenyi-egeszseg-vagy-cseszenyi-kockazat-mit-erdemes-tudni-a-gombakavekrol",
+    "title": "Csészényi egészség vagy csészényi kockázat? Mit érdemes tudni a gombakávékról?",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/hoseg-es-fokozott-villamosenergia-terheles-igy-orizhetjuek-meg-az-elelmiszerek-biztonsagat",
+    "title": "Hőség és fokozott villamosenergia-terhelés: így őrizhetjük meg az élelmiszerek biztonságát",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/reggelre-elmulik-mit-tudnak-valojaban-a-masnapossag-elleni-keszitmenyek",
+    "title": "Reggelre elmúlik? Mit tudnak valójában a másnaposság elleni készítmények?",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/idoskoru-fogyasztokat-erinto-tisztessegtelen-kereskedelmi-gyakorlatok-vizsgalatat-rendelte-el-az-nkfh",
+    "title": "Időskorú fogyasztókat érintő tisztességtelen kereskedelmi gyakorlatok vizsgálatát rendelte el az NKFH",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/lathatatlan-veszelyek-a-tanyeron-miert-nelkueloezhetetlen-az-nkfh-munkaja",
+    "title": "Láthatatlan veszélyek a tányéron – miért nélkülözhetetlen az NKFH munkája?",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/azonnali-ellenorzeseket-indit-a-nemzeti-kereskedelmi-es-fogyasztovedelmi-hatosag-az-indokolatlan-aremelesek-megakadalyozasa-erdekeben",
+    "title": "Azonnali ellenőrzéseket indít a Nemzeti Kereskedelmi és Fogyasztóvédelmi Hatóság az indokolatlan áremelések megakadályozása érdekében",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/nkfh-iranytu-fagylalt-lagyfagylalt-vagy-jegkrem-mire-kell-figyelni-fogyasztokent",
+    "title": "NKFH Iránytű: Fagylalt, lágyfagylalt vagy jégkrém? Mire kell figyelni fogyasztóként?",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/husveti-sonka-nem-mindegy-mi-keruel-az-uennepi-asztalra-1",
+    "title": "Húsvéti sonka – nem mindegy, mi kerül az ünnepi asztalra",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/a-fagyasztas-minden-bakteriumot-elpusztit-tevhit-vagy-valosag",
+    "title": "„A fagyasztás minden baktériumot elpusztít” – Tévhit vagy valóság?",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/a-huto-mindenre-megoldas-vagy-megsem-1",
+    "title": "„A hűtő mindenre megoldás” – vagy mégsem?",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/kosz-lejart-es-nyomonkoevethetetlen-elelmiszerek-pokhalok-sulyos-jogsertesek-miatt-zart-be-uezletet-es-vont-ki-elelmiszereket-a-forgalombol-az-nkfh",
+    "title": "Kosz, lejárt és nyomonkövethetetlen élelmiszerek, pókhálók – súlyos jogsértések miatt zárt be üzletet és vont ki élelmiszereket a forgalomból az NKFH",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/energiaitalok-kiszolgalasi-tilalmak-fogyasztasuk-es-mellekhatasok-1",
+    "title": "Energiaitalok – kiszolgálási tilalmak, fogyasztásuk és mellékhatások",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/a-szaloncukor-nemes-tudomanya-es-a-vasarlok-vedelmenek-kialtvanya",
+    "title": "A' Szaloncukor Nemes Tudománya és a' Vásárlók Védelmének Kiáltványa",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/tudatos-vasarlassal-a-tisztesseges-kereskedelemert-1",
+    "title": "Tudatos vásárlással a tisztességes kereskedelemért",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/tilosban-jartak-reklamhibak-amikbol-tanulni-lehet",
+    "title": "Tilosban jártak: Reklámhibák, amikből tanulni lehet",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/a-csalasok-nyomaban-iii-ne-doljuenk-be-kilenc-tipp-amivel-felismerhetjuek-a-hamisitott-elelmiszereket-1",
+    "title": "A csalások nyomában III. – Ne dőljünk be! Kilenc tipp, amivel felismerhetjük a hamisított élelmiszereket",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/lezarult-az-nkfh-nagy-orszagos-szamocaellenorzese-felezer-tetel-koezuel-nem-mindegyik-uszta-meg-buktak-az-al-lajosmizsei-eprek-is-1",
+    "title": "Lezárult az NKFH nagy országos szamócaellenőrzése – félezer tétel közül nem mindegyik úszta meg, buktak az „ál-lajosmizsei eprek” is",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/nyari-hoseg-edes-goeroegdinnye-mire-erdemes-figyelni-a-vasarlasnal",
+    "title": "Nyári hőség, édes görögdinnye - Mire érdemes figyelni a vásárlásnál?",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/orszagos-szamoca-ellenorzest-indit-az-nkfh",
+    "title": "Országos szamóca-ellenőrzést indít az NKFH",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/orszagos-olivaolaj-razziat-indit-az-nkfh",
+    "title": "Országos olívaolaj razziát indít az NKFH",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/hamisitott-olivaolajokat-talaltak-egy-nagykereskedelmi-egysegben-boltokban-es-piacokon-is-megtalalhato-ne-fogyasszak-el-1",
+    "title": "Hamisított olívaolajokat találtak egy nagykereskedelmi egységben – boltokban és piacokon is megtalálható, ne fogyasszák el!",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/hatarozott-nkfh-fellepes-a-forgalombol-elelmiszer-hamisitas-miatt-kivont-kamu-zsirpusztito-szereket-forgalmazo-influenszer-ellen-1",
+    "title": "Határozott NKFH fellépés a forgalomból élelmiszer-hamisítás miatt kivont kamu zsírpusztító szereket forgalmazó influenszer ellen",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/a-csalasok-nyomaban-ii-amikor-a-minoseg-csak-latszat-hogyan-vedi-az-unio-es-a-magyar-jog-a-fogyasztokat-a-hamis-elelmiszerektol",
+    "title": "A csalások nyomában II. – Amikor a minőség csak látszat: hogyan védi az unió és a magyar jog a fogyasztókat a hamis élelmiszerektől",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/termekvisszahivas-tesco-finest-avokado-olaj-250-ml-hatarertek-feletti-glicidol-tartalom-miatt-1",
+    "title": "Termékvisszahívás - Tesco Finest Avokádó olaj 250 ml határérték feletti glicidol tartalom miatt",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/nkfh-adatbazis-a-kiszerelescsoekkentesek-atlathatova-teteleert-es-a-fogyasztok-vedelmeert",
+    "title": "NKFH adatbázis a kiszereléscsökkentések átláthatóvá tételéért és a fogyasztók védelméért",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/fenntarthatosag-es-fogyasztoi-doentesek-hogyan-segithet-a-zoeld-termekek-valasztasa",
+    "title": "Fenntarthatóság és fogyasztói döntések - Hogyan segíthet a zöld termékek választása?",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/article-3",
+    "title": "Zöld állításokat vizsgál a fogyasztóvédelmi hatóság",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/lezarult-a-nemzeti-kereskedelmi-es-fogyasztovedelmi-hatosag-orszagos-celellenorzese",
+    "title": "Lezárult a Nemzeti Kereskedelmi és Fogyasztóvédelmi Hatóság országos célellenőrzése",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/termekvisszahivas-miil-uht-tej-1-5-termek-eseteben-lejart-minosegmegorzesi-ido-miatt",
+    "title": "Termékvisszahívás - Miil UHT tej 1,5% termék esetében lejárt minőségmegőrzési idő miatt",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/termekvisszahivas-csipkebogyo-hus-100-g-herbaria-pannonhalmi-termekek-eseteben-nem-engedelyezett-noevenyvedoszer-hatoanyag-tartalom-miatt",
+    "title": "Termékvisszahívás - Csipkebogyó hús 100 g (Herbária, Pannonhalmi) termékek esetében nem engedélyezett növényvédőszer-hatóanyag tartalom miatt",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/termekvisszahivas-lidl-pilos-juh-es-tehentej-listeria-miatt",
+    "title": "Termékvisszahívás - Lidl Pilos juh- és tehéntej Listeria miatt",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/termekvisszahivas-aldi-baromfivirsli-csirkemellel-280-g-tej-allergen-sajt-jelenlete-miatt",
+    "title": "Termékvisszahívás - ALDI Baromfivirsli csirkemellel 280 g tej allergén (sajt) jelenléte miatt",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://nkfh.gov.hu/hirek/termekvisszahivas-tejalapu-anyatej-helyettesito-tapszer-termekek-mikrobiologiai-nem-megfeleloseg-miatt",
+    "title": "Termékvisszahívás - tejalapú anyatej-helyettesítő tápszer termékek mikrobiológiai nem megfelelőség miatt",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://gvh.hu/fogyasztoknak/gondolja_vegig_higgadtan/gondolja_vegig_higgadtan_arkedvezmenyek",
+    "title": "GONDOLJA VÉGIG HIGGADTAN - Árkedvezmények",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://gvh.hu/fogyasztoknak/gondolja_vegig_higgadtan/gondolja_vegig_higgadtan_ha_un_mentes_elelmiszert_",
+    "title": "GONDOLJA VÉGIG HIGGADTAN - ha ún. „mentes” élelmiszert vásárol",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://gvh.hu/fogyasztoknak/gondolja_vegig_higgadtan/aruhazlancok_akciotartasi_gyakorlata",
+    "title": "Áruházláncok akciótartási gyakorlata",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://gvh.hu/fogyasztoknak/gondolja_vegig_higgadtan/jobb_mint_a_hagyomanyos",
+    "title": "Jobb, mint a „hagyományos”?",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://gvh.hu/fogyasztoknak/gondolja_vegig_higgadtan/zold_hirdetesek",
+    "title": "Zöld hirdetések",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://gvh.hu/fogyasztoknak/gondolja_vegig_higgadtan/ismert_szemelyek_a_reklamokban",
+    "title": "Ismert személyek a reklámokban",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://gvh.hu/fogyasztoknak/gondolja_vegig_higgadtan/mire_figyeljen_ha_ugynevezett_kuponos_oldalakon_va",
+    "title": "Mire figyeljen, ha úgynevezett kuponos oldalakon vásárol?",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://www.gvh.hu/sajtoszoba/sajtokozlemenyek/2025-os-sajtokozlemenyek/mar-100-termekkategoria-erheto-el-az-online-arfigyeloben",
+    "title": "Már 100 termékkategória érhető el az online Árfigyelőben",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://www.gvh.hu/sajtoszoba/sajtokozlemenyek/2025-os-sajtokozlemenyek/haztartasi-es-higienes-termekek-ara-is-nyomon-kovetheto-az-arfigyeloben",
+    "title": "Háztartási és higiénés termékek ára is nyomon követhető az Árfigyelőben",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://www.gvh.hu/sajtoszoba/sajtokozlemenyek/2025-os-sajtokozlemenyek/az-auchan-kuponakcioit-vizsgalja-a-gvh",
+    "title": "Az Auchan kuponakcióit vizsgálja a GVH",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://gvh.hu/sajtoszoba/sajtokozlemenyek/2025-os-sajtokozlemenyek/hatarozottan-fellep-a-gvh-az-elelmiszer-kiskereskedelemben",
+    "title": "Határozottan fellép a GVH az élelmiszer-kiskereskedelemben",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://www.gvh.hu/sajtoszoba/sajtokozlemenyek/2025-os-sajtokozlemenyek/ma-van-a-fekete-pentek--legyen-megfontolt-es-vigyazzon-az-akciokkal",
+    "title": "Ma van a fekete péntek – Legyen megfontolt és vigyázzon az akciókkal!",
+    "topic": "fogyasztói jogok és marketing hatás"
+  },
+  {
+    "url": "https://www.gvh.hu/sajtoszoba/sajtokozlemenyek/2024-es-sajtokozlemenyek/minosegi-dijat-kapott-az-online-arfigyelo",
+    "title": "Minőségi-díjat kapott az online Árfigyelő",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://www.gvh.hu/sajtoszoba/sajtokozlemenyek/2023-as-sajtokozlemenyek/gvh-az-online-arfigyelo-is-hozzajarult-az-elelmiszer-inflacio-ujabb-csokkenesehez",
+    "title": "GVH: az online Árfigyelő is hozzájárult az élelmiszer-infláció újabb csökkenéséhez",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://www.gvh.hu/sajtoszoba/sajtokozlemenyek/2024-es-sajtokozlemenyek/bovult-az-arfigyelo-mar-78-termekkategoria-napi-arait-mutatja-meg-a-rendszer",
+    "title": "Bővült az Árfigyelő, már 78 termékkategória napi árait mutatja meg a rendszer",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://www.gvh.hu/sajtoszoba/sajtokozlemenyek/2024-es-sajtokozlemenyek/hetfon-lesz-egy-eves-az-online-arfigyelo",
+    "title": "Hétfőn lesz egy éves az online Árfigyelő",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://www.gvh.hu/sajtoszoba/sajtokozlemenyek/2023-as-sajtokozlemenyek/gvh-a-karacsony-elotti-utolso-napokban-is-csokkenti-az-arakat-az-online-arfigyelo",
+    "title": "GVH: a karácsony előtti utolsó napokban is csökkenti az árakat az online Árfigyelő",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://www.gvh.hu/sajtoszoba/sajtokozlemenyek/2023-as-sajtokozlemenyek/uj-ev-ujabb-termekkategoriakkal-bovul-az-online-arfigyelo",
+    "title": "Új év, újabb termékkategóriákkal bővül az online Árfigyelő",
+    "topic": "ár-összehasonlítás és egységár"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/documents/10182/1172567/Vasaroljunk_Okosan.pdf",
+    "title": "Vásároljunk okosan! – Kérdések és válaszok",
+    "topic": "vásárlástervezés és pazarláscsökkentés",
+    "format": "pdf"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/-/uj-kiadvanyok-segitik-az-internetes-elelmiszervasarlast-es-a-biztonsagos-etrend-kiegeszito-fogyasztast",
+    "title": "Új kiadványok segítik az internetes élelmiszervásárlást és a biztonságos étrend-kiegészítő fogyasztást",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/-/mire-figyeljunk-ha-internetrol-rendelunk-elelmiszert-",
+    "title": "Mire figyeljünk, ha internetről rendelünk élelmiszert?",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/-/a-folyamatos-hatosagi-ellenorzes-mellett-a-tudatos-vasarlas-is-fontos-az-elelmiszerpiacon",
+    "title": "A folyamatos hatósági ellenőrzés mellett a tudatos vásárlás is fontos az élelmiszerpiacon",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/-/gyermeknapon-is-fokuszban-az-elelmiszerbiztonsag-hasznos-tanacsok-a-nebih-tol",
+    "title": "Gyermeknapon is fókuszban az élelmiszerbiztonság: hasznos tanácsok a Nébih-től",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/-/hamisitott-elelmiszereket-vont-ki-a-forgalombol-a-nebih",
+    "title": "Hamisított élelmiszereket vont ki a forgalomból a Nébih",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/-/hamisitasok-csalasok-elleni-kuzdelem",
+    "title": "Hamisítások, csalások elleni küzdelem",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/-/hamisitott-termekek-egy-bacs-kiskun-megyei-raktarban",
+    "title": "Hamisított termékek egy Bács-Kiskun megyei raktárban",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/kevesveruseg/-/asset_publisher/4ndba0yRXvQX/content/ehezunk-es-pazarolunk",
+    "title": "Éhezünk és pazarolunk",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/-/mikor-lehet-gmo-mentes-termelesbol-szarmazo-egy-szojaliszt-a-tej-a-mez-egy-szojaital-vagy-egy-szalami-",
+    "title": "Mikor lehet „GMO-mentes termelésből” származó egy szójaliszt, a tej, a méz, egy szójaital vagy egy szalámi?",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/-/hatterinformacio-a-kalium-szorbatrol",
+    "title": "Háttérinformáció a kálium-szorbátról",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://maradeknelkul.hu/elelmiszerhulladek-felmeres-2024/",
+    "title": "Harmadával csökkent az élelmiszerpazarlásunk az elmúlt 8 évben",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/elelmiszerhulladek-felmeres-adatok-2025/",
+    "title": "Tovább csökkent a pazarlás a magyar háztartásokban",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/sietos-hetkoznapok/",
+    "title": "Sietős hétköznapok maradék nélkül",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/bojt-nemcsak-a-testnek-es-leleknek-hanem-a-szemetesnek-is-megkonnyebbulest-hozhat/",
+    "title": "Böjt – nemcsak a testnek és léleknek, hanem a szemetesnek is megkönnyebbülést hozhat!",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/mennyi-is-egy-adag/",
+    "title": "Mennyi is egy adag?",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/nem-tudod-mit-kezdj-nehany-hatra-maradt-gyumolccsel-vagy-zoldseggel-ez-az-app-megkonnyitheti-a-dolgodat/",
+    "title": "Nem tudod, mit kezdj néhány hátra maradt gyümölccsel vagy zöldséggel? Ez az app megkönnyítheti a dolgodat!",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/szaraz-kenyer/",
+    "title": "Varázslat a konyhában: száraz kenyér új köntösben",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://maradeknelkul.hu/adagkalkulator/",
+    "title": "Adagkalkulátor",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/kenyertarolasi-tippek/",
+    "title": "Kenyértárolási tippek",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://maradeknelkul.hu/51-alkalmazas-az-elelmiszerpazarlas-ellen/",
+    "title": "5+1 alkalmazás az élelmiszerpazarlás ellen",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/lejarati-utmutato/",
+    "title": "Újabb termékekkel bővült népszerű lejárati útmutatónk",
+    "topic": "lejárati dátumok és címkék"
+  },
+  {
+    "url": "https://maradeknelkul.hu/wp-content/uploads/2023/11/Hutoutmutato-utmutato_Maradek-nelkul.pdf",
+    "title": "Hűtőútmutató",
+    "topic": "csomagolás és tárolás",
+    "format": "pdf"
+  },
+  {
+    "url": "https://maradeknelkul.hu/heti-menu-fozotokbol/",
+    "title": "Heti menü főzőtökből",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/hogyan-tartositsuk-szezonalis-zoldsegeinket/",
+    "title": "Mentsd el a nyár ízeit! – Praktikus tartósítási ötletek maradék nélkül",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://maradeknelkul.hu/nyari-vendegvaras-maradek-nelkul/",
+    "title": "Nyári vendégvárás maradék nélkül",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/etelallergia/",
+    "title": "Vendégvárás mentesen",
+    "topic": "élelmiszerbiztonság és termékválasztás"
+  },
+  {
+    "url": "https://maradeknelkul.hu/tarolas/",
+    "title": "Zöldségek és gyümölcsök tárolása",
+    "topic": "csomagolás és tárolás"
+  },
+  {
+    "url": "https://portal.nebih.gov.hu/-/hianypotlo-lejarati-utmutatot-allitott-ossze-a-nebih",
+    "title": "Hiánypótló „lejárati útmutatót” állított össze a Nébih",
+    "topic": "lejárati dátumok és címkék"
+  },
+  {
+    "url": "https://maradeknelkul.hu/lejart-elelmiszer-adhatsz-neki-egy-eselyt/",
+    "title": "Lejárt élelmiszer? Adhatsz neki egy esélyt!",
+    "topic": "lejárati dátumok és címkék"
+  },
+  {
+    "url": "https://maradeknelkul.hu/apro-lepesekkel-az-elelmiszerpazarlas-csokkenteseert/",
+    "title": "Apró lépésekkel az élelmiszerpazarlás csökkentéséért!",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/a-felnotte-valas-kuszoben-tippek-a-pazarlasmentes-konyhai-szokasok-kialakitasahoz/",
+    "title": "A felnőtté válás küszöbén: tippek a pazarlásmentes konyhai szokások kialakításához",
+    "topic": "vásárlástervezés és pazarláscsökkentés"
+  },
+  {
+    "url": "https://maradeknelkul.hu/okoforradalom/",
+    "title": "Nem mindegy, hogy meddig jó, vagy meddig a legjobb! – Lejárati idők nyomában Gyöngyösön",
+    "topic": "lejárati dátumok és címkék"
   }
 ]
