@@ -7,11 +7,28 @@ import {
   loadDatabaseConfig,
   resolveSourceUrl,
   runMigrations,
+  type ToolCallLogEntry,
 } from '@smartbasket/core';
 import { Command } from 'commander';
 
 const program = new Command();
 const logFilePath = createLogFilePath();
+
+// HF5: a logs/escalations.jsonl-be írás önmagában nem elég feltűnő ahhoz,
+// hogy egy kolléga élőben észrevegye - ez a csatorna-specifikus (apps/cli,
+// nem packages/core) figyelmeztetés stderr-re, amíg nincs valódi
+// ügyfélszolgálati/ticketing-integráció (docs/business-case.md 6. dia).
+function alertOnEscalation(toolCalls: ToolCallLogEntry[]): void {
+  for (const call of toolCalls) {
+    if (call.name !== 'escalateToHuman') {
+      continue;
+    }
+    const input = call.input as { reason?: unknown } | null;
+    const reason =
+      typeof input?.reason === 'string' ? input.reason : 'ismeretlen ok';
+    console.error(`\n🔔 ESZKALÁCIÓ - emberi kolléga szükséges (${reason})\n`);
+  }
+}
 
 async function handleAsk(question: string, showPrompt: boolean): Promise<void> {
   const { databaseUrl, databaseUrlReadonly } = loadDatabaseConfig();
@@ -37,6 +54,7 @@ async function handleAsk(question: string, showPrompt: boolean): Promise<void> {
       console.log('--- válasz ---');
     }
     console.log(result.answer);
+    alertOnEscalation(result.toolCalls);
 
     appendAgentLog(logFilePath, {
       timestamp: new Date().toISOString(),

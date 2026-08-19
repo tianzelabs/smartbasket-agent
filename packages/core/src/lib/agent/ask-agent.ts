@@ -16,6 +16,10 @@ import {
   SEARCH_KNOWLEDGE_TOOL_DEFINITION,
   searchKnowledge,
 } from '../knowledge/search/search-knowledge.js';
+import {
+  ESCALATE_TO_HUMAN_TOOL_DEFINITION,
+  escalateToHuman,
+} from '../tools/escalate/escalate-to-human-tool.js';
 
 const MAX_TOOL_ITERATIONS = 5;
 const MAX_TOKENS = 1024;
@@ -23,6 +27,7 @@ const TOOLS: Anthropic.Tool[] = [
   RUN_SQL_TOOL_DEFINITION,
   LIST_CATEGORIES_TOOL_DEFINITION,
   SEARCH_KNOWLEDGE_TOOL_DEFINITION,
+  ESCALATE_TO_HUMAN_TOOL_DEFINITION,
 ];
 
 export interface AskAgentOptions {
@@ -105,6 +110,14 @@ async function executeTool(
           cohereClient,
           databaseUrlReadonly: deps.databaseUrlReadonly,
         }),
+        isError: false,
+      };
+    }
+    if (name === 'escalateToHuman') {
+      const question = extractStringField(input, 'question', 'escalateToHuman');
+      const reason = extractStringField(input, 'reason', 'escalateToHuman');
+      return {
+        result: escalateToHuman({ question, reason }),
         isError: false,
       };
     }

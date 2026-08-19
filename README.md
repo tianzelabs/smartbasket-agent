@@ -4,6 +4,8 @@ Egy CLI eszköz, ami megválaszolja azt a kérdést, amit mindenki felteszi bev�
 
 A HF3-mal a SmartBasket egy második képességet is kapott: nem csak azt mondja meg, hol olcsóbb valami, hanem azt is, hogy egy adott vásárlás egyáltalán érdemes-e - hiteles magyar fogyasztóvédelmi források (NKFH, Nébih, GVH) alapján ad tanácsot vásárlástervezésről, lejárati címkékről, tárolásról és arról, mikor nem éri meg egy akció. Lásd lent a "Tudatos vásárlási tanácsadás (RAG)" szakaszt.
 
+A HF5-tel a rendszer célközönsége fordul: eddig belső, kollégák általi használatra épült, mostantól ugyanez az agent-mag ügyfelek felé is megnyitható, egy új emberi jóváhagyási ponttal (`escalateToHuman`) kiegészítve. Lásd lent az "Ügyfél-forduló használat (HF5)" szakaszt, illetve [`docs/business-case.md`](docs/business-case.md).
+
 ## Miért csináltuk
 
 Az árösszehasonlítás ma azt jelenti, hogy valaki sorban végignyitja 4-5 üzletlánc appját, és fejben vagy jegyzetben tartja számon, hol mennyibe kerül ugyanaz a termék. Ez percekbe kerül minden egyes alkalommal, és a legtöbben egyszerűen nem csinálják meg - inkább ott vásárolnak, ahová amúgy is mennek.
@@ -86,6 +88,19 @@ pnpm smartbasket ask "Érdemes-e nagy kiszerelésben venni a tejet, ha csak kett
 
 A pipeline: HyDE (`claude-haiku-4-5`) → embedding (Cohere `embed-v4.0`) → pgvector keresés → rerank (Cohere `rerank-v3.5`) → relevancia-küszöb. Ha a tudásbázisban nincs megbízható forrás, az agent ezt mondja ki, nem talál ki tanácsot - lásd a golden set negatív tesztjeit: [`docs/golden-set-results.md`](docs/golden-set-results.md).
 
+## Ügyfél-forduló használat és eszkaláció (HF5)
+
+Eddig a SmartBasketet a szervezeten belül, kollégák használták (lásd [`docs/roi.md`](docs/roi.md): egy 5 fős iroda megtakarítása). A HF5 use case ugyanezt az agent-magot (ár-összehasonlítás + vásárlási tanácsadás) nyitja meg az ügyfeleink felé, hogy ők maguk kérdezhessenek, munkaidőn kívül is, ahelyett hogy minden alkalommal a kollégáinkat hívnák fel ugyanazokkal a kérdésekkel. Két, a 12. órai anyagban megnevezett fájdalmat old meg:
+
+- **#1 - munkaidőn kívüli válaszadás**: az `ask` parancs bármikor elérhető, nem kell rá kolléga.
+- **#2 - ugyanazok a kérdések naponta százszor**: ár- és tanácsadási kérdések nagy része önkiszolgálóvá válik, a kollégák csak a valóban emberi ügyintézést igénylő esetekkel foglalkoznak.
+
+**Amit ez a use case nem old meg** (tudatosan): a rendszer ma semmilyen ügyfél-azonosítót, rendelést vagy "ügy" adatot nem ismer - a `products`/`knowledge_*` táblákban nincs customer/order entitás. Ezért nem oldja meg az ügyfél-onboarding elveszettség-érzést (#3), az "hol tart az ügyem" kérdést (#4), a szerződéskötési papírmunkát (#7), a sürgősség szerinti sorban állást (#8), sem az elvándorlás-előrejelzést (#10) - ezekhez egy teljesen más adatmodell kellene, amit a PoC nem tesz úgy, mintha meglenne.
+
+Az egyetlen emberi jóváhagyási pont az **`escalateToHuman`** tool: ha egy kérdés panasz/reklamáció/számlázási vita, vagy a `searchKnowledge` is `belowThreshold: true`-t ad egy nem ár/készlet jellegű kérdésre, az agent nem próbál találgatva válaszolni, hanem egy sort ír a `logs/escalations.jsonl`-be, és a CLI azonnal egy jól látható 🔔 figyelmeztetést is kiír stderr-re (`alertOnEscalation()`, `apps/cli/src/main.ts`). Élő demo: [`docs/demo-transcript.md`](docs/demo-transcript.md) 3. példája.
+
+Ez ma **terminál-figyelmeztetés, nem valódi ügyfélszolgálati integráció**: a 🔔 csak azt a terminált éri el, ahol a CLI éppen fut, nincs csatorna-független értesítés (Slack/e-mail) vagy valódi ticketing-rendszerbe (pl. Zendesk) történő bekötés - ez a legfontosabb dolog, amit a bevezetés előtt hozzá kellene építeni. Lásd [`docs/business-case.md`](docs/business-case.md) az adattérképért, a rollout tervért; [`docs/measurement-plan.md`](docs/measurement-plan.md) a méréshez; [`docs/questions.md`](docs/questions.md) a kötekedő kérdésekre adott válaszokért.
+
 Minden döntés (chunkolás, provider-szereposztás, routing, tudásbázis-karbantartás) indokolva:
 
 - [`docs/rag-chunking-strategy.md`](docs/rag-chunking-strategy.md) - heading-alapú chunkolás, miért nem fix méretű darabolás
@@ -132,6 +147,7 @@ Az agent három saját toollal dolgozik:
 - **`runSql`** - csak `SELECT`/`WITH` lekérdezést enged, egy statementet egyszerre, és egy külön Postgres-szerepkörön (`smartbasket_ro`) fut, aminek DB-szerver szinten csak `SELECT` joga van, kizárólag a szemantikus view-kra. Ez a projekt legkényesebb pontja (a felhasználói kérdésből generált SQL), ezért négy független védelmi réteg van rajta: a DB-szerepkör jogosultsága, a SQL-guard, egy `READ ONLY` tranzakció és egy `statement_timeout`. Részletek: [`docs/db-migration-rationale.md`](docs/db-migration-rationale.md).
 - **`listCategories`** - kilistázza az elérhető termékkategóriákat, ha az agent nem biztos egy kategória pontos nevében.
 - **`searchKnowledge`** - HyDE + embedding + pgvector + rerank a tudatos vásárlási tudásbázison, forráshivatkozással; ha nincs releváns találat, `belowThreshold: true`-t jelez. Részletek: [`docs/rag-provider-rationale.md`](docs/rag-provider-rationale.md).
+- **`escalateToHuman`** (HF5) - emberi kollégához irányítja a kérdést, ha a fenti három tool egyike sem tud rá választ adni (panasz, reklamáció, vagy egy nem ár/készlet jellegű kérdésre a `searchKnowledge` is `belowThreshold: true`-t adott). Egy sort ír a `logs/escalations.jsonl`-be, és a CLI azonnal 🔔 figyelmeztetést is ír stderr-re; ez a rendszer egyetlen emberi jóváhagyási pontja.
 
 Az agent sosem éri el közvetlenül a nyers adattáblát, csak szemantikus SQL view-kat (`vw_products`, `vw_categories`, `vw_best_prices`, `vw_knowledge_search`) - ez egyszerűbb, stabilabb sémát ad neki, és csökkenti a hallucináció esélyét.
 
@@ -191,6 +207,8 @@ A fejlesztés fázisolt terve, minden fázishoz tartozó commit- és PR-lánccal
 ## Mi nincs benne (még)
 
 Egy adott kosár ad-hoc összeállítása és beárazása (lásd fent) már most is megy - amit nem tud: mentett/visszatérő kosarak, több üzletlánc közötti útvonal- és utazási költség szerinti optimalizálás, történeti ártrendek, webes felület, REST API, MCP szerver, több adatforrás. Ezek tudatosan nem részei az első verziónak, de az architektúra nem zárja ki őket.
+
+HF5-specifikusan: nincs ügyfél/rendelés/ügy adatmodell (lásd fent), az `escalateToHuman` csak terminál-figyelmeztetést ad (nincs csatorna-független queue/értesítés), a beszélgetésnek nincs több-fordulós memóriája (minden `ask` hívás önálló, lásd [`docs/questions.md`](docs/questions.md)), és nincs PII-szűrés a naplózott kérdésszövegen.
 
 ## Háttér
 
