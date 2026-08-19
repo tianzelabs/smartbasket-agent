@@ -20,6 +20,7 @@ export * from './lib/tools/run-sql/db-readonly.js';
 export * from './lib/tools/run-sql/run-sql-tool.js';
 export * from './lib/tools/run-sql/sql-guard.js';
 export * from './lib/tools/list-categories/list-categories-tool.js';
+export * from './lib/tools/escalate/escalate-to-human-tool.js';
 export * from './lib/knowledge/extraction/extracted-block.js';
 export * from './lib/knowledge/extraction/extract-html-blocks.js';
 export * from './lib/knowledge/extraction/extract-pdf-blocks.js';
